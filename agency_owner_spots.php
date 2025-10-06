@@ -23,7 +23,8 @@ $owner = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$owner) {
-    die("Owner not found.");
+    die("Owner not found!");
+
 }
 
 // Fetch tourist spots by this owner
