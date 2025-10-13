@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php';
+include 'config/db_connect.php'; // The database connection file
 
 //  Only allow tourists nga login
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourist') {
@@ -47,7 +47,7 @@ $gcash_total = $total + ($total * 0.025);
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col font-[Poppins]">
 
-<?php include 'header.php'; ?>
+   <?php include 'config/include/header.php'; ?>
 
 <div class="flex-grow flex justify-center p-4">
     <div class="bg-white shadow-lg rounded-lg w-full max-w-6xl p-6 md:p-10 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -129,7 +129,7 @@ $gcash_total = $total + ($total * 0.025);
                         <i class="fa-solid fa-circle-info"></i> Note: GCash Service Fee (2.5%) applies.
                     </p><br>
 
-                    <button type="submit" class="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded font-semibold">
+                    <button type="submit" class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-900 text-white px-4 py-3 rounded font-semibold">
                         <i class="fa-solid fa-mobile-screen"></i> Pay via GCash
                     </button>
                 </form>
@@ -166,24 +166,8 @@ $gcash_total = $total + ($total * 0.025);
     </div>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include 'config/include/footer.php'; ?>
 
-<script>
-// Copy form values into hidden fields before submitting sa payment forms
-function copyBookingInfo(form) {
-    const bookingForm = document.getElementById("bookingInfo");
-    const data = new FormData(bookingForm);
-    form.fullname.value = data.get("fullname");
-    form.address.value = data.get("address");
-    form.email.value = data.get("email");
-    form.phone.value = data.get("phone");
-
-    if (!form.fullname.value || !form.address.value || !form.email.value || !form.phone.value) {
-        alert("Please fill out all fields before proceeding to payment.");
-        return false;
-    }
-    return true;
-}
-</script>
+<script src="js/package.js"></script>
 </body>
 </html>

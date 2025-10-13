@@ -1,50 +1,109 @@
 <?php
-session_start();
-include 'db_connect.php'; // The database connection file
+session_start(); // Start the session
 
-$error = "";
+include 'config/db_connect.php'; // The database connection file
 
-// Redirect if already logged in as a tourist
-if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'tourist') {
-    header("Location: Homepage.php");
-    exit;
-}
+$error = ""; 
+$table = ""; // Table name to check
 
-// Handle form submission
+
+
+// Handle form submission for login
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
+    $table = $_POST['table']; // Get the selected table (spot_owner, tourism_officer, or tourist)
 
-    if ($email && $password) {
-        // Check sa Tourist
-        $stmt = $conn->prepare("SELECT * FROM tourists WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $tourist_result = $stmt->get_result();
-        $stmt->close();
+    if ($email && $password && $table) {
+        // Handle spot_owner login
+        if ($table === 'spot_owner') {
+            $stmt = $conn->prepare("SELECT * FROM spot_owners WHERE email = ?");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $spot_owner_result = $stmt->get_result();
+            $stmt->close();
 
-        if ($tourist_result && $tourist_result->num_rows === 1) {
-            $tourist = $tourist_result->fetch_assoc();
-            if (password_verify($password, $tourist['password'])) {
-                // Login success
-                $_SESSION['user'] = [
-                    'id' => $tourist['id'],
-                    'fullname' => $tourist['fullname'],
-                    'email' => $tourist['email'],
-                    'role' => 'tourist',
-                    'profile_image' => $tourist['profile_image'] ?? null,
-                    'phone_number' => $tourist['phone_number'] ?? null
-                ];
-                header("Location: Homepage.php");
-                exit;
+            if ($spot_owner_result && $spot_owner_result->num_rows === 1) {
+                $spot_owner = $spot_owner_result->fetch_assoc();
+                if (password_verify($password, $spot_owner['password'])) {
+                    // Successful login
+                    $_SESSION['user'] = [
+                        'id' => $spot_owner['id'],
+                        'fullname' => $spot_owner['fullname'],
+                        'email' => $spot_owner['email'],
+                        'role' => 'spot_owner',
+                        'profile_image' => $spot_owner['profile_image'] ?? null,
+                        'phone_number' => $spot_owner['phone_number'] ?? null
+                    ];
+                    header("Location: tourist_spot_owner_dashboard.php");
+                    exit;
+                } else {
+                    $error = "Invalid email or password.";
+                }
             } else {
-                $error = "Invalid email or password.";
+                $error = "Account not found.";
             }
-        } else {
-            $error = "Account not found.";
+        }
+        // Handle tourism_officer login
+        elseif ($table === 'tourism_officer') {
+            $stmt = $conn->prepare("SELECT * FROM tourism_officers WHERE email = ?");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $tourism_officer_result = $stmt->get_result();
+            $stmt->close();
+
+            if ($tourism_officer_result && $tourism_officer_result->num_rows === 1) {
+                $tourism_officer = $tourism_officer_result->fetch_assoc();
+                if (password_verify($password, $tourism_officer['password'])) {
+                    // Successful login
+                    $_SESSION['user'] = [
+                        'id' => $tourism_officer['id'],
+                        'fullname' => $tourism_officer['fullname'],
+                        'email' => $tourism_officer['email'],
+                        'role' => 'tourism_officer',
+                        'profile_image' => $tourism_officer['profile_image'] ?? null,
+                        'phone_number' => $tourism_officer['phone_number'] ?? null
+                    ];
+                    header("Location: tourism_officer_dashboard.php");
+                    exit;
+                } else {
+                    $error = "Invalid email or password.";
+                }
+            } else {
+                $error = "Account not found.";
+            }
+        }
+        // Handle tourist login
+        elseif ($table === 'tourists') {
+            $stmt = $conn->prepare("SELECT * FROM tourists WHERE email = ?");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $tourist_result = $stmt->get_result();
+            $stmt->close();
+
+            if ($tourist_result && $tourist_result->num_rows === 1) {
+                $tourist = $tourist_result->fetch_assoc();
+                if (password_verify($password, $tourist['password'])) {
+                    // Successful login
+                    $_SESSION['user'] = [
+                        'id' => $tourist['id'],
+                        'fullname' => $tourist['fullname'],
+                        'email' => $tourist['email'],
+                        'role' => 'tourist',
+                        'profile_image' => $tourist['profile_image'] ?? null,
+                        'phone_number' => $tourist['phone_number'] ?? null
+                    ];
+                    header("Location: Homepage.php"); // Redirect to tourist dashboard
+                    exit;
+                } else {
+                    $error = "Invalid email or password.";
+                }
+            } else {
+                $error = "Account not found.";
+            }
         }
     } else {
-        $error = "Please enter email and password.";
+        $error = "Please enter email, password, and select a role.";
     }
 }
 ?>
@@ -72,10 +131,30 @@ body {
 
 <section class="flex-grow flex items-center justify-center px-4 py-10">
 <div class="w-full max-w-md bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg p-8 space-y-6 transition-all duration-300">
-  
-  <div class="flex flex-col items-center">
+
+  <!-- Role Selection Buttons Above the Logo -->
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:space-x-4 mb-6">
+  <a href="./owner/tourist_spot_login.php?role=spot_owner" 
+   class="flex justify-center items-center bg-gradient-to-r from-yellow-500 via-green-500 to-green-600 text-white py-2 px-6 rounded-md shadow-md hover:scale-105 transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm">
+   <i class="fa-solid fa-user-tie mr-2"></i>
+   Login as Spot Owner
+</a>
+
+ <a href="./admin/admin_login.php?role=tourism_officer" 
+   class="flex justify-center items-center bg-gradient-to-r from-green-500 via-blue-400 to-blue-700 text-white py-2 px-6 rounded-md shadow-md hover:scale-105 transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+   <i class="fa-solid fa-briefcase mr-2"></i>
+   Login as Tourism Officer
+</a>
+
+  </div>
+
+  <div class="flex flex-col items-center mb-6">
     <img class="w-24 h-24 mb-3 rounded-full border-4 border-blue-500 shadow-lg" src="img/logo.png" alt="logo" />
     <h1 class="text-3xl font-bold text-blue-800">Tara sa Mis.Occ</h1>
+   <h1 class="text-1xl font-bold text-black-800">
+  Login as Tourist
+  <i class="fas fa-hand-point-down text-green-500"></i>
+</h1>
   </div>
 
   <?php if ($error): ?>
@@ -107,8 +186,11 @@ body {
       </div>
     </div>
 
-   <button type="submit"
-      class="w-full flex items-center justify-center gap-2 text-white bg-yellow-500 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+    <!-- Hidden Input for Table -->
+    <input type="hidden" name="table" id="table" value="tourists" /> <!-- Default is tourists -->
+
+    <button type="submit"
+      class="w-full flex items-center justify-center gap-2 text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:bg-yellow-800 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
       <i class="fas fa-sign-in-alt"></i> 
       Login
     </button>
@@ -135,7 +217,7 @@ body {
 
     <!-- Navigation Links -->
     <div class="flex flex-wrap justify-center gap-4 text-white text-base">
-      <a href="login.php" class="hover:text-blue-700 transition">Home</a>
+      <a href="index.php" class="hover:text-blue-700 transition">Home</a>
       <a href="login.php" class="hover:text-blue-700 transition">Explore</a>
       <a href="login.php" class="hover:text-blue-700 transition">Packages</a>
       <a href="login.php" class="hover:text-blue-700 transition">Contact</a>
@@ -156,23 +238,9 @@ body {
     &copy; 2025 Tara sa MisOcc. All rights reserved.
   </div>
 </footer>
-
-<!-- Font Awesome CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
-
-<script>
-function togglePassword() {
-  const passwordField = document.getElementById("password");
-  const eyeIcon = document.getElementById("eyeIcon");
-  if (passwordField.type === "password") {
-    passwordField.type = "text";
-    eyeIcon.classList.add("text-blue-500");
-  } else {
-    passwordField.type = "password";
-    eyeIcon.classList.remove("text-blue-500");
-  }
-}
-</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/explo-details.js"></script>
 
 </body>
 </html>

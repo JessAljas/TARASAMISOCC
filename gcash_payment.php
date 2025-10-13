@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php';
+include 'config/db_connect.php'; // The database connection file
 
 // Initialize the variables
 $success = false;
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
 <body class="flex flex-col min-h-screen bg-gray-100 font-[Poppins]">
 
 <header class="sticky top-0 z-50 bg-white shadow">
-    <?php include 'header.php'; ?>
+      <?php include 'config/include/header.php'; ?>
 </header>
 
 <main class="flex-1 flex flex-col items-center justify-center p-4">
@@ -189,6 +189,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
     </div>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include 'config/include/footer.php'; ?>
 </body>
 </html>

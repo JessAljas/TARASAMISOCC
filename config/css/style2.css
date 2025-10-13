@@ -1,0 +1,32 @@
+/* ✨ Import Calligraphy Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@600&display=swap");
+
+/* 🌿 Elegant Calligraphy Text Style */
+.calligra-text {
+  font-family: "Great Vibes", "Dancing Script", cursive;
+  font-size: 1.6rem; /* slightly larger for readability */
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.8;
+  letter-spacing: 0px;
+  background: linear-gradient(to right, orange, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text; /* add standard property for Firefox */
+  color: transparent; /* fallback for browsers without clip */
+  animation: fadeInUp 1s ease-out forwards;
+  margin: 1rem auto;
+  max-width: 900px; /* keeps text centered & clean */
+}
+
+/* 🌟 Fade-in animation for soft entrance */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

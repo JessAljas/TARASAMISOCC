@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php'; // Database connection file
+include 'config/db_connect.php'; // The database connection file
 
 // Enable error nga reporting
 ini_set('display_errors', 1);
@@ -67,10 +67,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <link rel="stylesheet" href="config/css/style.css">
 </head>
+
 <body class="bg-gray-100 flex flex-col min-h-screen font-[Poppins]">
 
-<?php include 'header.php'; ?>
+   <?php include 'config/include/header.php'; ?>
 
 <section class="bg-gray-100 py-12">
   <div class="container mx-auto px-4 lg:px-20 flex flex-col lg:flex-row gap-10">
@@ -112,10 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <p class="flex items-center"><i class="fas fa-phone-alt text-yellow-400 mr-3"></i>+63 912 345 6789</p>
           <p class="flex items-center"><i class="fas fa-envelope text-yellow-400 mr-3"></i>contact@tarasamisocc.com</p>
           <p class="flex items-center"><i class="fab fa-facebook text-yellow-400 mr-3"></i>
-            <a href="https://www.facebook.com/TaraSaMisOcc" target="_blank" class="hover:text-blue-600 underline">Tara Sa Mis.Occ</a>
-          </p>
-          <p class="flex items-center"><i class="fas fa-globe text-yellow-400 mr-3"></i>
-            <a href="http://www.tarasamisocc.com" target="_blank" class="hover:text-blue-600 underline">www.tarasamisocc.com</a>
+            <a href="https://www.facebook.com/TravelBeeTour" target="_blank" class="hover:text-blue-600 underline">Tara Sa Mis.Occ</a>
           </p>
         </div>
       </div>
@@ -127,24 +126,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   </div>
 </section>
 
-<?php include 'footer.php'; ?>
+<?php include 'config/include/footer.php'; ?>
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-<script>
-  var map = L.map('map').setView([8.241387, 123.846906], 17);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-
-  var customIcon = L.icon({
-      iconUrl: 'img/logo.png',
-      iconSize: [50, 50],
-      iconAnchor: [25, 50],
-      popupAnchor: [0, -45]
-  });
-
-  L.marker([8.241387, 123.846906], { icon: customIcon }).addTo(map)
-      .bindPopup('<b>Tara sa Mis.Occ Main Office</b><br>Municipal Hall, Tudela, Misamis Occidental')
-      .openPopup();
-</script>
+<script src="js/con-explore.js"></script>
 </body>
 </html>

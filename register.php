@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php'; // Database connection file
+include 'config/db_connect.php'; // The database connection file
 
 $error = "";
 $success = "";

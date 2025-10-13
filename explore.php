@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php';
+include 'config/db_connect.php'; // The database connection file
 
 // Fetch all tourist spots except sa rejected
 $res = $conn->query("SELECT * FROM tourist_spots WHERE status != 'rejected' OR status IS NULL ORDER BY created_at DESC");
@@ -57,20 +57,11 @@ if ($res && $res->num_rows > 0) {
 <title>Explore Tourist Spots | Tara sa Mis.Occ</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
-<style>
-.slider { overflow: hidden; position: relative; height: 60% !important; }
-.slides { display: flex; transition: transform 0.5s ease-in-out; }
-.slides img { width: 100%; flex-shrink: 0; object-fit: cover; height: 250px; }
-.slider button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); border: none; padding: 0.5rem; cursor: pointer; border-radius: 9999px; }
-.slider button:hover { background: rgba(255,255,255,0.9); }
-.slider .prev { left: 0.5rem; }
-.slider .next { right: 0.5rem; }
-.card { min-height: 420px; }
-</style>
+<link rel="stylesheet" href="config/css/style.css">
 </head>
 <body class="bg-gray-100 flex flex-col min-h-screen font-[Poppins]">
 
-<?php include 'header.php'; ?>
+<?php include 'config/include/header.php'; ?>
 
 <div class="flex justify-center mt-2">
     <h1 class="text-black drop-shadow-xl text-3xl font-bold mb-4" style="font-family: 'Poppins', sans-serif;">
@@ -147,37 +138,9 @@ if ($res && $res->num_rows > 0) {
 </div>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include 'config/include/footer.php'; ?>
 
-<script>
-// Slider sa picture Functionality
-document.addEventListener('DOMContentLoaded', () => {
-    const sliders = document.querySelectorAll('.slider');
-    sliders.forEach(slider => {
-        const slides = slider.querySelector('.slides');
-        const images = slides.querySelectorAll('img');
-        let index = 0;
-        const prevBtn = slider.querySelector('.prev');
-        const nextBtn = slider.querySelector('.next');
-
-        function showSlide(i) {
-            if(i < 0) i = images.length - 1;
-            if(i >= images.length) i = 0;
-            slides.style.transform = `translateX(-${i * 100}%)`;
-            index = i;
-        }
-
-        prevBtn.addEventListener('click', () => { showSlide(index - 1); resetInterval(); });
-        nextBtn.addEventListener('click', () => { showSlide(index + 1); resetInterval(); });
-
-        let autoSlide = setInterval(() => showSlide(index + 1), 4000);
-        function resetInterval() {
-            clearInterval(autoSlide);
-            autoSlide = setInterval(() => showSlide(index + 1), 4000);
-        }
-    });
-});
-</script>
+<script src="js/con-explore.js"></script>
 
 </body>
 </html>

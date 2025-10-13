@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php';
+include 'config/db_connect.php'; // The database connection file
 
 $term = trim($_GET['q'] ?? '');
 $results = [];
@@ -114,31 +114,15 @@ if ($term !== '') {
 <meta charset="UTF-8">
 <title>Search Results | Tara sa Mis.Occ</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="config/css/style.css">
 <script src="https://cdn.tailwindcss.com"></script>
-<style>
-.card { min-height: 450px; }
-.slider { overflow: hidden; position: relative; height: 250px; }
-.slides { display: flex; transition: transform 0.5s ease-in-out; height: 250px; }
-.slides img { width: 100%; flex-shrink: 0; object-fit: cover; height: 250px; }
-.slider button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); border: none; padding: 0.5rem; cursor: pointer; border-radius: 9999px; }
-.slider button:hover { background: rgba(255,255,255,0.9); }
-.slider .prev { left: 0.5rem; }
-.slider .next { right: 0.5rem; }
 
-/* Packages slider */
-.slider-container { position: relative; height: 12rem; overflow: hidden; }
-.slider-container img { width: 100%; height: 12rem; object-fit: cover; display: none; }
-.slider-container img.active { display: block; }
-.arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); border-radius: 9999px; padding: 0.5rem; cursor: pointer; }
-.arrow:hover { background: rgba(255,255,255,0.9); }
-.arrow.left { left: 0.5rem; }
-.arrow.right { right: 0.5rem; }
-</style>
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen font-[Poppins]">
 
-<?php include 'header.php'; ?>
+<?php include 'config/include/header.php'; ?>
 
 <div class="text-center mt-6">
     <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
@@ -151,93 +135,176 @@ if ($term !== '') {
 
 <?php foreach($results as $item): ?>
     <?php if($item['type'] === 'spot'): ?>
-        <!-- Tourist Spot Card -->
-        <div class="bg-white shadow rounded-lg overflow-hidden flex flex-col card max-w-100 mx-auto">
-            <div class="slider relative">
-              <div class="slides">
-                <?php for ($i=1; $i<=3; $i++):
-                    $img = $item['image'.$i];
-                    if ($img && file_exists("uploads/".$img)): ?>
-                  <img src="uploads/<?= htmlspecialchars($img) ?>" alt="Spot Image">
-                <?php endif; endfor; ?>
-              </div>
-              <button class="prev">&lt;</button>
-              <button class="next">&gt;</button>
-            </div>
+      <!-- Tourist Spot Card -->
+<div class="bg-white shadow rounded-lg overflow-hidden flex flex-col card max-w-100 mx-auto">
+  <div class="slider relative">
+    <div class="slides">
+      <?php for ($i=1; $i<=3; $i++):
+          $img = $item['image'.$i];
+          if ($img && file_exists("uploads/".$img)): ?>
+        <img src="uploads/<?= htmlspecialchars($img) ?>" alt="Spot Image">
+      <?php endif; endfor; ?>
+    </div>
+    <button class="prev">&lt;</button>
+    <button class="next">&gt;</button>
+  </div>
 
-            <div class="p-6 flex-1 flex flex-col justify-between">
-              <div>
-                <h2 class="text-lg font-semibold flex items-center gap-2">
-                    <?= htmlspecialchars($item['title']) ?>
-                    <?php if (isset($item['status']) && $item['status'] === 'verified'): ?>
-                        <span class="bg-green-100 text-green-600 text-xs font-medium px-2 py-1 rounded-full">✔ Verified</span>
-                    <?php else: ?>
-                        <span class="bg-orange-100 text-orange-600 text-xs font-medium px-2 py-1 rounded-full">❌ Under-verify</span>
-                    <?php endif; ?>
-                </h2>
+  <!-- Tourist Spot Info -->
+  <div class="p-6 flex-1 flex flex-col justify-between">
+    <div>
+      <!-- Tourist Spot Name -->
+      <h2 class="relative text-xl font-bold">
+      <?= htmlspecialchars($item['name_of_tourist_spot']) ?>
 
-                <p class="text-gray-600 text-sm mt-1"><?= htmlspecialchars($item['location']) ?></p>
+      <?php if (isset($item['status']) && $item['status'] === 'verified'): ?>
+          <span class="absolute -top-3 right-0 inline-flex items-center justify-center">
+              <i class="fa fa-certificate text-green-500 text-4xl"></i>
+              <span class="absolute text-[6px] font-bold text-white">
+                  Verified
+              </span>
+          </span>
+      <?php else: ?>
+          <span class="absolute -top-3 right-0 inline-flex items-center justify-center">
+              <i class="fa fa-certificate text-orange-500 text-4xl"></i>
+              <span class="absolute text-[5px] font-bold text-white">
+                  Pending
+              </span>
+          </span>
+      <?php endif; ?>
+      </h2>
 
-                <?php if(!empty($item['price_display'])): ?>
-                    <p class="text-green-600 font-bold mt-1 text-sm"><?= $item['price_display'] ?></p>
-                <?php endif; ?>
+      <!-- Location -->
+      <p class="text-gray-700 font-semibold text-sm mt-1">
+        <?= htmlspecialchars($item['location']) ?>
+      </p>
 
-                <p class="mt-2 text-gray-700 text-sm leading-snug">
-                    <?= htmlspecialchars(mb_substr($item['description'],0,50)) ?>...
-                </p>
+      <!-- Entrance Fee -->
+      <?php if(!empty($item['price_display'])): ?>
+        <p class="text-green-600 font-bold mt-2 text-base">
+          <?= $item['price_display'] ?>
+        </p>
+      <?php endif; ?>
 
-                <p class="mt-2 text-gray-500 text-sm italic">
-                    Posted by: <?= htmlspecialchars($item['posted_by_name']) ?>
-                </p>
-              </div>
+      <p class="mt-2 text-gray-500 text-sm italic">
+        Posted by: <?= htmlspecialchars($item['posted_by_name']) ?>
+      </p>
+    </div>
 
-             <a href="explore_details.php?id=<?= $item['id'] ?>" 
-        class="mt-4 inline-block bg-gradient-to-r from-green-400 to-yellow-400 text-black px-4 py-2 rounded text-center 
-                hover:bg-gradient-to-r hover:from-red-400 hover:via-pink-400 hover:to-red-500 transition-colors duration-300">
+    <a href="explore_details.php?id=<?= $item['id'] ?>" 
+      class="mt-4 inline-block text-black px-4 py-2 rounded text-center bg-gradient-to-r from-yellow-400 to-green-500 
+              hover:from-orange-500 hover:to-red-500 transition-colors duration-300">
         View Details
-        </a>
+    </a>
+  </div>
+</div>
 
-            </div>
-        </div>
-    <?php else: ?>
-        <!-- Package Card -->
-        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden flex flex-col card w-full max-w-100 mx-auto">
-            <div class="slider-container">
-                <?php
-                $images = [];
-                for($i=1;$i<=3;$i++){
-                    if(!empty($item['image'.$i]) && file_exists("uploads/".$item['image'.$i])){
-                        $images[] = "uploads/".$item['image'.$i];
-                    }
+ <?php else: ?>
+    <!-- Package Card -->
+    <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden flex flex-col relative">
+
+        <!-- Status Badge -->
+        <?php if($item['status'] === 'approved'): ?>
+            <span class="absolute top-3 left-3 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-lg z-10 flex items-center gap-1">
+                <i class="fas fa-check-circle"></i>
+                Verified
+            </span>
+        <?php elseif($item['status'] === 'pending'): ?>
+            <span class="absolute top-3 left-3 bg-yellow-400 text-white text-xs font-semibold px-2 py-1 rounded-lg z-10 flex items-center gap-1">
+                <i class="fas fa-hourglass-half"></i>
+                Under Review
+            </span>
+        <?php endif; ?>
+
+        <?php  
+        // 🏷️ Dynamic Sunburst Badge Logic
+        $badge = '';
+        $badgeClass = 'sunburst new';
+        if (!empty($item['created_at']) && $item['created_at'] > date('Y-m-d', strtotime('-7 days'))) {
+            $badge = 'New';
+        } elseif (!empty($item['bookings']) && $item['bookings'] > 50) {
+            $badge = 'Best Seller';
+            $badgeClass = 'sunburst top';
+        } elseif (!empty($item['avg_rating']) && $item['avg_rating'] >= 4.5) {
+            $badge = 'Top Rated';
+            $badgeClass = 'sunburst top';
+        } elseif (!empty($item['price']) && $item['price'] >= 5000) {
+            $badge = 'Luxury';
+            $badgeClass = 'sunburst premium';
+        } elseif (!empty($item['price']) && $item['price'] >= 2500) {
+            $badge = 'Premium';
+            $badgeClass = 'sunburst premium';
+        } elseif (!empty($item['price']) && $item['price'] <= 2000) {   
+            $badge = 'Lowest Price';
+        }
+        ?>
+
+        <?php if($badge): ?>
+            <div class="absolute top-3 right-3 <?= $badgeClass ?> z-10"><?= $badge ?></div>
+        <?php endif; ?>
+
+        <!-- Image Slider -->
+        <div class="slider-container relative">
+            <?php
+            $images = [];
+            for($i=1;$i<=3;$i++){
+                if(!empty($item['image'.$i]) && file_exists("uploads/".$item['image'.$i])) {
+                    $images[] = "uploads/".$item['image'.$i];
                 }
-                ?>
-                <?php if(!empty($images)): ?>
-                    <?php foreach($images as $i=>$img): ?>
-                        <img src="<?= htmlspecialchars($img) ?>" class="<?= $i===0?'active':'' ?>">
-                    <?php endforeach; ?>
-                    <button class="arrow left">&#10094;</button>
-                    <button class="arrow right">&#10095;</button>
-                <?php else: ?>
-                    <img src="assets/no-image.png" class="active">
-                <?php endif; ?>
-            </div>
-            <div class="p-5 flex flex-col flex-1">
-                <h2 class="text-lg font-semibold text-gray-800"><?= htmlspecialchars($item['title']) ?></h2>
-                <div class="flex items-center justify-between mt-2">
-                    <p class="text-green-600 font-bold text-lg">₱<?= number_format($item['price']??0,2) ?></p>
-                    <span class="bg-yellow-200 text-yellow-700 text-xs px-2 py-1 rounded-full">Popular</span>
-                </div>
-
-                <p class="mt-3 text-gray-600 text-sm leading-snug">
-                    <?= htmlspecialchars(mb_substr($item['description'],0,50)) ?>...
-                </p>
-
-                <p class="mt-3 text-gray-400 text-xs">Posted by: <?= htmlspecialchars($item['posted_by_name']) ?></p>
-                <a href="package_details.php?id=<?= $item['id'] ?>" class="mt-4 inline-block bg-gradient-to-r from-yellow-500 to-green-500 text-white font-medium px-4 py-2 rounded-lg text-center hover:opacity-90 transition">View Details</a>
-            </div>
+            }
+            ?>
+            <?php if(!empty($images)): ?>
+                <?php foreach($images as $i=>$img): ?>
+                    <img src="<?= htmlspecialchars($img) ?>" class="<?= $i===0 ? 'active' : '' ?> w-full h-56 object-cover">
+                <?php endforeach; ?>
+            <?php else: ?>
+                <img src="assets/no-image.png" class="active w-full h-56 object-cover">
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
-<?php endforeach; ?>
+
+        <!-- Package Info -->
+        <div class="p-5 flex flex-col flex-1">
+            <h2 class="text-base font-semibold text-gray-900 leading-snug">
+                <?= htmlspecialchars($item['title'] ?? 'Untitled Package') ?>
+            </h2>
+
+            <!-- Ratings -->
+            <div class="flex items-center mt-1 text-xs text-gray-500">
+                <?php
+                $avg = round($item['avg_rating'] ?? 0, 1);
+                $fullStars = floor($avg);
+                $halfStar = ($avg - $fullStars) >= 0.5 ? 1 : 0;
+                $emptyStars = 5 - $fullStars - $halfStar;
+                for ($i = 0; $i < $fullStars; $i++) echo "⭐";
+                if ($halfStar) echo "⭐"; 
+                for ($i = 0; $i < $emptyStars; $i++) echo "☆";
+                ?>
+                <span class="ml-1">(<?= $item['total_reviews'] ?? 0 ?>)</span>
+            </div>
+
+            <!-- Price -->
+            <p class="mt-2 text-green-600 font-bold text-lg">
+                ₱<?= number_format($item['price'] ?? 0, 2) ?>
+            </p>
+
+            <!-- Short Description -->
+            <p class="mt-1 text-gray-600 text-sm leading-snug line-clamp-2">
+                <?= mb_strimwidth(htmlspecialchars($item['description'] ?? ''), 0, 60, "...") ?>
+            </p>
+
+            <!-- Posted By -->
+            <p class="mt-3 text-gray-400 text-xs">
+                Posted by: <?= htmlspecialchars($item['posted_by_name'] ?? 'Agency') ?>
+            </p>
+
+            <!-- View Button -->
+            <a href="package_details.php?id=<?= $item['id'] ?? 0 ?>" 
+               class="mt-3 inline-block w-full text-center bg-gradient-to-r from-yellow-500 to-green-500 text-white font-medium px-4 py-2 rounded-lg hover:opacity-90 transition">
+                View Details
+            </a>
+        </div>
+    </div>
+<?php endif; ?>
+<?php endforeach; ?> 
 
 <?php if(empty($results)): ?>
     <p class="col-span-full text-center text-gray-500">No results found.</p>
@@ -246,30 +313,8 @@ if ($term !== '') {
 </div>
 </main>
 
-<?php include 'footer.php'; ?>
-
-<script>
-// Tourist Spot slider
-document.querySelectorAll('.slider').forEach(slider => {
-    const slides = slider.querySelector('.slides');
-    const images = slides.querySelectorAll('img');
-    let index = 0;
-    const prevBtn = slider.querySelector('.prev');
-    const nextBtn = slider.querySelector('.next');
-    function showSlide(i){
-        if(i<0) i = images.length-1;
-        if(i>=images.length) i=0;
-        slides.style.transform = `translateX(-${i*100}%)`;
-        index=i;
-    }
-    prevBtn.addEventListener('click',()=>showSlide(index-1));
-    nextBtn.addEventListener('click',()=>showSlide(index+1));
-    let autoSlide=setInterval(()=>showSlide(index+1),4000);
-    function resetInterval(){ clearInterval(autoSlide); autoSlide=setInterval(()=>showSlide(index+1),4000); }
-});
-
-
-</script>
+<?php include 'config/include/footer.php'; ?>
+<script src="js/prof.js"></script>
 
 </body>
 </html>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php';
+include 'config/db_connect.php'; // The database connection file
 
 // Only tourists can submit ug ratings
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourist') {

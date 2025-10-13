@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connect.php';
+include 'config/db_connect.php'; // The database connection file
 
 // ✅ Fetch all packages with avg rating, total reviews, and bookings count
 $res = $conn->query("
@@ -56,42 +56,14 @@ if ($res && $res->num_rows > 0) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tour Packages | Tara sa Mis.Occ</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="config/css/style.css">
 <script src="https://cdn.tailwindcss.com"></script>
-<style>
-    .slider-container { position: relative; }
-    .slider-container img { display: none; }
-    .slider-container img.active { display: block; }
 
-    .sunburst {
-        border-radius: 50%;
-        background: radial-gradient(circle at center, #facc15 0%, #f59e0b 70%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: #000;
-        text-align: center;
-        box-shadow: 0 0 6px rgba(0,0,0,0.2);
-        position: relative;
-    }
-    .sunburst::before {
-        content: '';
-        position: absolute;
-        border-radius: 50%;
-        background: repeating-conic-gradient(#f59e0b 0 15deg, transparent 15deg 30deg);
-        top: -10%; left: -10%;
-        width: 120%; height: 120%;
-        z-index: -1;
-    }
-    .sunburst.new { width: 2.2rem; height: 2.2rem; font-size: 0.5rem; }
-    .sunburst.premium { width: 2.8rem; height: 2.8rem; font-size: 0.55rem; }
-    .sunburst.top { width: 3.2rem; height: 3.2rem; font-size: 0.6rem; }
-</style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen font-[Poppins]">
 
-<?php include 'header.php'; ?>
+   <?php include 'config/include/header.php'; ?>
 
 <div class="text-center mt-6">
     <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
@@ -186,11 +158,6 @@ if ($res && $res->num_rows > 0) {
             <span class="ml-1">(<?= $package['total_reviews'] ?>)</span>
         </div>
 
-        <!-- ⚡ Bookings Count -->
-        <div class="mt-1 text-xs text-gray-600">
-            <?= $package['bookings'] > 0 ? number_format($package['bookings']) . '+ booked' : 'Be the first to book!' ?>
-        </div>
-
         <!-- Price -->
         <p class="mt-2 text-green-600 font-bold text-lg">
             ₱<?= number_format($package['price'] ?? 0, 2) ?>
@@ -217,6 +184,6 @@ if ($res && $res->num_rows > 0) {
 </div>
 </main>
 
-<?php include 'footer.php'; ?>
+<?php include 'config/include/footer.php'; ?>
 </body>
 </html>

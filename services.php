@@ -36,10 +36,11 @@ function renderStars($rating){
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous"/>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+<link rel="stylesheet" href="config/css/style2.css">
 </head>
 <body class="bg-gray-100 font-[Poppins]">
 
-<?php include 'header.php'; ?>
+   <?php include 'config/include/header.php'; ?>
 
 <!-- Services nga Section -->
 <section class="py-12 px-6 text-center">
@@ -92,33 +93,24 @@ function renderStars($rating){
       and nearby municipalities-featuring tour packages that include transportation, guided tours, 
       and curated itineraries. 
     </p>
-    <p class="text-orange-500 text-lg leading-relaxed font-bold italic">
-  Our mission is to connect tourists with the wonders of Misamis Occidental while 
+<p class="text-orange-500 text-lg leading-relaxed">
+  "Our mission: Is to connect tourists with the wonders of Misamis Occidental while 
   supporting local communities and small businesses. By choosing Tara sa MisOcc, 
   you don’t just book a trip—you become part of a movement that celebrates local 
-  tourism, culture, and sustainability. <br><br>
+  tourism, culture, and sustainability". <br><br>
 
-  Misamisnon Magpuyong Malinawon Malamboon ug Malipayon! <br>
-  (Misamisnon: Let us live peacefully, harmoniously, and happily!)
+  <span class="calligra-text">
+    Misamisnon Magpuyong Malinawon Malamboon ug Malipayon! <br>
+    (Misamisnon: Let us live peacefully, harmoniously, and happily!)
+  </span>
 </p>
-
   </div>
 </section>
 
-
-<?php include 'footer.php'; ?>
+<?php include 'config/include/footer.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script>
-  const swiper = new Swiper(".mySwiper", {
-    slidesPerView: 1,
-    spaceBetween: 20,
-    loop: true,
-    autoplay: { delay: 4000 },
-    pagination: { el: ".swiper-pagination", clickable: true },
-    breakpoints: {640:{slidesPerView:1},768:{slidesPerView:2},1024:{slidesPerView:3}}
-  });
-</script>
+<script src="js/package.js"></script>
 
 </body>
 </html>

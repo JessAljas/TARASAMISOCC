@@ -1,6 +1,6 @@
 <?php
-include('db_connect.php');
-include('header.php');
+include 'config/db_connect.php'; // The database connection file
+include('config/include/header.php');
 
 $id = $_GET['id'] ?? null;
 if (!$id) {
@@ -19,7 +19,7 @@ if (!$spot) {
     die("Tourist spot not found.");
 }
 
-// Set defaults if latitude/longitude kay  missing sa Ozamiz nga place
+// Set defaults if latitude/longitude kay missing sa Ozamiz nga place
 $latitude = !empty($spot['latitude']) ? $spot['latitude'] : 8.15;   
 $longitude = !empty($spot['longitude']) ? $spot['longitude'] : 123.85;
 ?>
@@ -32,6 +32,7 @@ $longitude = !empty($spot['longitude']) ? $spot['longitude'] : 123.85;
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="config/css/style.css">
 </head>
 <body class="bg-gray-100 font-[Poppins]">
 
@@ -92,40 +93,43 @@ $longitude = !empty($spot['longitude']) ? $spot['longitude'] : 123.85;
   </div>
 
   <!-- Map -->
-  <div class="bg-white p-6 rounded-2xl shadow-md">
+  <div class="bg-white p-6 rounded-2xl shadow-md z-10">
     <h2 class="text-xl font-semibold mb-3 text-gray-800">Map Location</h2>
     <div id="map" class="w-full h-[400px] rounded-2xl"></div>
   </div>
 
 </div>
 
+<!-- Logout Modal -->
+<div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-center items-center">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md relative">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">Confirm Logout</h2>
+    <p class="text-gray-600 mb-6">Are you sure you want to log out?</p>
+    <div class="flex justify-end space-x-3">
+      <button onclick="closeLogoutModal()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700">Cancel</button>
+      <a href="<?= $base ?>logout.php" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white">Logout</a>
+    </div>
+  </div>
+</div>
+
+
+<?php include 'config/include/footer.php'; ?>
+
+<!-- Pass PHP values to JS -->
 <script>
-  // Get PHP lat/lng
-  var lat = <?php echo $latitude; ?>;
-  var lng = <?php echo $longitude; ?>;
-  var spotName = "<?php echo addslashes($spot['name_of_tourist_spot']); ?>";
+  const lat = <?php echo $latitude; ?>;
+  const lng = <?php echo $longitude; ?>;
+  const spotName = "<?php echo addslashes($spot['name_of_tourist_spot']); ?>";
 
-  // Initialize ang Map
-  var map = L.map('map').setView([lat, lng], 14);
-
-  // Tile Layer
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-
-  // Marker with label name sa tourist spot
-  L.marker([lat, lng], {
-      icon: L.icon({
-          iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-          iconSize: [32, 32],
-          iconAnchor: [16, 32],
-          popupAnchor: [0, -32]
-      })
-  }).addTo(map)
-    .bindTooltip(spotName, {permanent: true, direction: "top", offset: [0, -10]})
-    .openTooltip();
+  document.addEventListener("DOMContentLoaded", function () {
+    if (typeof initMap === "function") {
+      initMap(lat, lng, spotName);
+    } else {
+      console.error("initMap() not found. Check if explo-details.js is loaded.");
+    }
+  });
 </script>
 
-<?php include 'footer.php'; ?>
+<script src="js/explo-details.js"></script>
 </body>
 </html>
