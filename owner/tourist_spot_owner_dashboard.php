@@ -152,6 +152,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_inquiry'])) {
     <?php endif; ?>
 </div>
 
+<!-- Edit Profile Modal -->
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-lg font-bold mb-4 text-center">Edit Profile</h2>
+
+        <!-- Profile Picture Centered -->
+        <div class="flex justify-center mb-4">
+            <img src="<?= $profile_img ?>" alt="Profile Picture" class="w-24 h-24 rounded-full object-cover border-2 border-green-500">
+        </div>
+        <form method="POST" enctype="multipart/form-data" class="space-y-3">
+            <input type="text" name="fullname" value="<?= htmlspecialchars($owner['fullname'] ?? '') ?>" class="w-full p-2 border rounded" placeholder="Full Name" required>
+            <input type="email" name="email" value="<?= htmlspecialchars($owner['email'] ?? '') ?>" class="w-full p-2 border rounded" placeholder="Email" required>
+            <input type="text" name="phone_number" value="<?= htmlspecialchars($owner['phone_number'] ?? '') ?>" class="w-full p-2 border rounded" placeholder="Phone Number" required>
+            <input type="file" name="profile_image" class="w-full border p-2 rounded">
+
+            <div class="flex justify-end gap-2 mt-4">
+                <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                <button type="submit" name="update_profile" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Send Inquiry Modal -->
 <div id="messageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-center items-center">
     <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md">
