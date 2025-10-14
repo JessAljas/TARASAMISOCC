@@ -27,7 +27,7 @@ include 'config/db_connect.php'; // The database connection file
 
     <!-- Social Media Icons -->
     <div class="flex space-x-4 text-xl text-white">
-      <a href="#" class="hover:text-blue-700 transition"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="https://www.facebook.com/TravelBeeTour" class="hover:text-blue-700 transition"><i class="fa-brands fa-facebook-f"></i></a>
       <a href="#" class="hover:text-blue-700 transition"><i class="fa-brands fa-twitter"></i></a>
       <a href="#" class="hover:text-blue-700 transition"><i class="fa-brands fa-instagram"></i></a>
       <a href="#" class="hover:text-blue-700 transition"><i class="fa-brands fa-youtube"></i></a>

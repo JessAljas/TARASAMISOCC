@@ -131,7 +131,7 @@ function getProofPath($filename) {
  <img id="profileDisplay" 
      src="<?= htmlspecialchars($display_image) ?>?t=<?= time() ?>" 
      alt="Profile Image" 
-     class="w-32 h-32 rounded-full border-4 border-yellow-400 mx-auto object-cover">
+     class="w-32 h-32 rounded-full border-4 border-green-500 mx-auto object-cover">
 
     <h2 class="mt-4 text-2xl font-semibold text-gray-800">
         <?= htmlspecialchars($tourist['fullname']) ?>
