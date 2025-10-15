@@ -304,7 +304,7 @@ $totalPages = ceil($totalSpots / $limit);
     <h2 class="text-xl font-bold mb-4">Send Message to Agency</h2>
     <form id="messageForm">
         <div class="mb-3">
-            <label class="block font-semibold mb-1">Email:</label>
+            <label class="block font-semibold mb-1">Subject:</label>
             <input type="text" name="subject" class="w-full border rounded px-3 py-2" required>
         </div>
         <div class="mb-3">

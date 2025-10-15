@@ -195,8 +195,14 @@ body {
       Login
     </button>
     <p class="text-sm font-light text-black">
-      Don’t have an account yet? <a href="register.php" class="font-medium text-black hover:underline">Register</a>
+         <i class="fa-solid fa-user"></i> Don’t have an account yet? <a href="register.php" class="font-medium text-black hover:underline">Register</a> 
     </p>
+
+      <div class="mt-2 border-t pt-2 text-xs text-gray-800 text-center leading-relaxed px-2">
+        <i class="fa-solid fa-lock text-blue-500"></i> 
+        By registering, you agree to our 
+        <a href="index.php" class="text-blue-700 hover:underline">Privacy Policy</a> and 
+        <a href="index.php" class="text-blue-700 hover:underline">Terms of Service</a>.<br>
   </form>
 </div>
 </section>

@@ -182,7 +182,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
                     <label class="font-medium">Upload Screenshot</label>
                     <input type="file" name="payment_screenshot" accept="image/*" required class="border p-3 rounded w-full">
 
-                    <button type="submit" name="confirm_payment" class="bg-green-600 text-white py-3 rounded hover:bg-green-700 mt-4 w-full font-semibold text-lg">Confirm Payment</button>
+            <button type="submit" name="confirm_payment" 
+                class="bg-green-600 text-white py-3 rounded hover:bg-green-700 mt-4 w-full font-semibold text-lg flex items-center justify-center gap-2">
+                <i class="fa-solid fa-check-circle"></i> Confirm Payment
+            </button>
+
                 </form>
             </div>
         <?php endif; ?>
