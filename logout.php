@@ -23,7 +23,7 @@ if (isset($_SESSION['user'])) {
     // Redirect based on role
     switch ($user_role) {
         case 'agency':
-            header("Location: index.php");
+            header("Location: admin/admin_login.php");
             break;
         case 'spot_owner':
         case 'tourism_officer':
