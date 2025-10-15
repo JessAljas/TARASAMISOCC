@@ -2,13 +2,13 @@
 session_start();
 include '../config/db_connect.php';
 
-//  Only tourism officers
+// Only tourism officers
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourism_officers') {
     header("Location: login.php");
     exit;
 }
 
-//  Handle Approve / Reject Actions
+// Handle Approve / Reject Actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['package_id'], $_POST['action'])) {
     $package_id = intval($_POST['package_id']);
     $action = $_POST['action'];
@@ -19,15 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['package_id'], $_POST[
     $stmt->close();
 }
 
-// Pagination setup
+// Pagination
 $limit = 10;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
 
-// ✅ Search & status filter
+// Search & status filter
 $search = $_GET['search'] ?? '';
-$status_filter = $_GET['status'] ?? ''; // New: filter by status
-$search_sql = "WHERE 1"; // always true
+$status_filter = $_GET['status'] ?? '';
+$search_sql = "WHERE 1";
 if (!empty($search)) {
     $search = $conn->real_escape_string($search);
     $search_sql .= " AND (p.title LIKE '%$search%' OR ts.name_of_tourist_spot LIKE '%$search%')";
@@ -37,7 +37,7 @@ if (!empty($status_filter)) {
     $search_sql .= " AND p.status = '$status_filter'";
 }
 
-// ✅ Count total packages
+// Count total packages
 $count_sql = "
     SELECT COUNT(DISTINCT p.id) AS total
     FROM packages p
@@ -48,7 +48,7 @@ $count_sql = "
 $total_packages = $conn->query($count_sql)->fetch_assoc()['total'];
 $total_pages = ceil($total_packages / $limit);
 
-// ✅ Fetch packages with search + pagination
+// Fetch packages
 $sql = "
     SELECT p.id, p.title, p.description, p.price, p.status, p.created_at,
            p.image1, p.image2, p.image3, p.image4,
@@ -65,13 +65,12 @@ $sql = "
 $result = $conn->query($sql);
 $packages = $result->fetch_all(MYSQLI_ASSOC);
 
-// ✅ Fetch counts for status cards
+// Fetch status counts
 $status_counts = $conn->query("
     SELECT status, COUNT(*) as total
     FROM packages
     GROUP BY status
 ")->fetch_all(MYSQLI_ASSOC);
-
 $counts = ['pending'=>0, 'approved'=>0, 'rejected'=>0];
 foreach($status_counts as $row){
     $counts[$row['status']] = $row['total'];
@@ -86,90 +85,88 @@ foreach($status_counts as $row){
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-xs font-[Poppins]">
+<body class="bg-gray-100 font-[Poppins] text-sm">
 
-<!-- Full-width header -->
-<div class="w-full bg-green-500 text-white p-4">
-    <h1 class="text-xl font-bold text-center">
-        Manage Tour Packages
-    </h1>
-</div>
+<!-- Header -->
+<header class="bg-green-500 text-white p-6 shadow-md text-center mb-6">
+    <h1 class="text-2xl font-bold">Manage Tour Packages</h1>
+</header>
 
-<!-- Main container -->
-<div class="max-w-7xl mx-auto p-6">
+<div class="max-w-7xl mx-auto px-6">
 
     <!-- Search -->
-    <form method="GET" class="flex mb-6 justify-end">
+    <form method="GET" class="flex justify-end mb-8 space-x-2">
         <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" 
                placeholder="Search packages or destinations..." 
-               class="px-2 py-1 border text-sm rounded-l w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <button type="submit" class="px-3 py-1 bg-green-500 text-white text-sm rounded-r">Search</button>
+               class="px-3 py-2 border rounded-l w-64 focus:outline-none focus:ring-2 focus:ring-green-500">
+        <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-r hover:bg-green-600 transition">
+            <i class="fas fa-search mr-1"></i> Search
+        </button>
     </form>
 
-    <!-- Status Summary Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <a href="?status=pending" class="bg-yellow-100 text-yellow-800 p-4 rounded-lg shadow flex flex-col items-center hover:bg-yellow-200 transition">
-        <i class="fas fa-hourglass-half text-3xl mb-2"></i>
-        <p class="text-lg font-semibold">Pending</p>
-        <span class="text-2xl font-bold"><?= $counts['pending'] ?></span>
-    </a>
-    <a href="?status=approved" class="bg-green-100 text-green-800 p-4 rounded-lg shadow flex flex-col items-center hover:bg-green-200 transition">
-        <i class="fas fa-check-circle text-3xl mb-2"></i>
-        <p class="text-lg font-semibold">Verified</p>
-        <span class="text-2xl font-bold"><?= $counts['approved'] ?></span>
-    </a>
-    <a href="?status=rejected" class="bg-red-100 text-red-800 p-4 rounded-lg shadow flex flex-col items-center hover:bg-red-200 transition">
-        <i class="fas fa-times-circle text-3xl mb-2"></i>
-        <p class="text-lg font-semibold">Rejected</p>
-        <span class="text-2xl font-bold"><?= $counts['rejected'] ?></span>
-    </a>
-</div>
-
-
-    <!-- Table and other content here -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-        <table class="w-full border-collapse text-base">
-            <thead>
-                <tr class="bg-gray-100 text-left uppercase tracking-wider">
-                    <th class="p-4">Title</th>
-                    <th class="p-4">Price</th>
-                    <th class="p-4">Status</th>
-                    <th class="p-4">Destinations</th>
-                    <th class="p-4 text-center">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($packages as $pkg): ?>
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-4 font-semibold"><?= htmlspecialchars($pkg['title']) ?></td>
-                    <td class="p-4">₱<?= number_format($pkg['price'], 2) ?></td>
-                    <td class="p-4">
-                        <?php if ($pkg['status'] == 'pending'): ?>
-                            <span class="px-3 py-1 rounded bg-yellow-100 text-yellow-700 font-semibold">Pending</span>
-                        <?php elseif ($pkg['status'] == 'approved'): ?>
-                            <span class="px-3 py-1 rounded bg-green-100 text-green-700 font-semibold">Verified</span>
-                        <?php else: ?>
-                            <span class="px-3 py-1 rounded bg-red-100 text-red-700 font-semibold">Rejected</span>
-                        <?php endif; ?>
-                    </td>
-                    <td class="p-4 text-gray-700"><?= htmlspecialchars($pkg['destinations'] ?? 'No destinations') ?></td>
-                    <td class="p-4 text-center">
-                        <button onclick='openModal(<?= json_encode($pkg) ?>)' 
-                                class="px-3 py-2 bg-green-500 text-white rounded hover:bg-yellow-600">View</button>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-                <?php if (empty($packages)): ?>
-                <tr>
-                    <td colspan="5" class="p-6 text-center text-gray-500">No packages found.</td>
-                </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+    <!-- Status Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="?status=pending" class="bg-yellow-300 text-yellow-800 p-6 rounded-lg shadow hover:bg-yellow-200 transition flex flex-col items-center">
+            <i class="fas fa-hourglass-half text-3xl mb-2"></i>
+            <span class="font-semibold text-lg">Pending</span>
+            <span class="text-2xl font-bold"><?= $counts['pending'] ?></span>
+        </a>
+        <a href="?status=approved" class="bg-green-500 text-green-800 p-6 rounded-lg shadow hover:bg-green-200 transition flex flex-col items-center">
+            <i class="fas fa-check-circle text-3xl mb-2"></i>
+            <span class="font-semibold text-lg">Verified</span>
+            <span class="text-2xl font-bold"><?= $counts['approved'] ?></span>
+        </a>
+        <a href="?status=rejected" class="bg-red-200 text-red-800 p-6 rounded-lg shadow hover:bg-red-200 transition flex flex-col items-center">
+            <i class="fas fa-times-circle text-3xl mb-2"></i>
+            <span class="font-semibold text-lg">Rejected</span>
+            <span class="text-2xl font-bold"><?= $counts['rejected'] ?></span>
+        </a>
     </div>
 
+<!-- Packages Table -->
+<div class="bg-white shadow rounded-lg overflow-hidden mb-8">
+    <table class="w-full border-collapse text-center">
+        <thead>
+            <tr class="bg-green-300 uppercase tracking-wider">
+                <th class="p-3">Title</th>
+                <th class="p-3">Price</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($packages as $pkg): ?>
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-2 font-semibold"><?= htmlspecialchars($pkg['title']) ?></td>
+                <td class="p-2">₱<?= number_format($pkg['price'], 2) ?></td>
+                <td class="p-2">
+                    <?php if ($pkg['status'] == 'pending'): ?>
+                        <span class="px-2 py-1 rounded bg-yellow-200 text-yellow-700 font-semibold">Pending</span>
+                    <?php elseif ($pkg['status'] == 'approved'): ?>
+                        <span class="px-2 py-1 rounded bg-green-300 text-green-700 font-semibold">Verified</span>
+                    <?php else: ?>
+                        <span class="px-2 py-1 rounded bg-red-200 text-red-700 font-semibold">Rejected</span>
+                    <?php endif; ?>
+                </td>
+                <td class="p-2">
+                    <button onclick='openModal(<?= json_encode($pkg) ?>)' 
+                            class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition">
+                        View
+                    </button>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (empty($packages)): ?>
+            <tr>
+                <td colspan="4" class="p-4 text-gray-500">No packages found.</td>
+            </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
     <!-- Pagination -->
-    <div class="flex justify-between items-center mt-6">
+    <div class="flex justify-between items-center mb-8">
         <p class="text-gray-700">
             Showing <?= count($packages) ?> of <?= $total_packages ?> results
         </p>
@@ -183,51 +180,45 @@ foreach($status_counts as $row){
         </div>
     </div>
 
-    <!-- Back to Dashboard -->
-    <div class="flex justify-center mt-5">
-        <a href="tourism_dashboard.php" 
-           class="text-blue-600 underline text-base hover:text-blue-800">
-           ← Back to Dashboard
+    <!-- Back Button -->
+    <div class="flex justify-center mb-12">
+        <a href="manage_request.php" class="text-blue-600 underline hover:text-blue-800">
+            ← Back to Dashboard
         </a>
     </div>
-
-</div> 
-
+</div>
 
 <!-- Modal -->
 <div id="viewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-  <div class="bg-white rounded-xl w-full max-w-3xl p-6 relative text-sm max-h-[80vh] overflow-y-auto">
-    <h2 class="text-xl font-bold mb-4">Package Details</h2>
-    <form method="POST">
-        <input type="hidden" name="package_id" id="modal_package_id">
-        <p><strong>Title:</strong> <span id="modal_title"></span></p>
-        <p><strong>Description:</strong></p>
-        <p id="modal_description" class="text-gray-700 mb-3"></p>
-        <p><strong>Price:</strong> ₱<span id="modal_price"></span></p>
-        <p><strong>Locations:</strong> <span id="modal_locations"></span></p>
-        <p><strong>Destinations:</strong> <span id="modal_destinations"></span></p>
-        <p><strong>Status:</strong> <span id="modal_status"></span></p>
-        <p><strong>Date Posted:</strong> <span id="modal_created_at"></span></p>
+    <div class="bg-white rounded-xl w-full max-w-3xl p-6 relative text-sm max-h-[80vh] overflow-y-auto">
+        <h2 class="text-xl font-bold mb-4">Package Details</h2>
+        <form method="POST">
+            <input type="hidden" name="package_id" id="modal_package_id">
+            <p><strong>Title:</strong> <span id="modal_title"></span></p>
+            <p><strong>Description:</strong></p>
+            <p id="modal_description" class="text-gray-700 mb-3"></p>
+            <p><strong>Price:</strong> ₱<span id="modal_price"></span></p>
+            <p><strong>Locations:</strong> <span id="modal_locations"></span></p>
+            <p><strong>Destinations:</strong> <span id="modal_destinations"></span></p>
+            <p><strong>Status:</strong> <span id="modal_status"></span></p>
+            <p><strong>Date Posted:</strong> <span id="modal_created_at"></span></p>
 
-        <!-- Images -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            <img id="modal_image1" class="w-full h-32 object-cover rounded shadow" alt="Image 1">
-            <img id="modal_image2" class="w-full h-32 object-cover rounded shadow" alt="Image 2">
-            <img id="modal_image3" class="w-full h-32 object-cover rounded shadow" alt="Image 3">
-            <img id="modal_image4" class="w-full h-32 object-cover rounded shadow" alt="Image 4">
-        </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                <img id="modal_image1" class="w-full h-32 object-cover rounded shadow" alt="Image 1">
+                <img id="modal_image2" class="w-full h-32 object-cover rounded shadow" alt="Image 2">
+                <img id="modal_image3" class="w-full h-32 object-cover rounded shadow" alt="Image 3">
+                <img id="modal_image4" class="w-full h-32 object-cover rounded shadow" alt="Image 4">
+            </div>
 
-        <div class="flex justify-end gap-3 mt-6">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Close</button>
-            <button type="submit" name="action" value="rejected" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">Reject</button>
-            <button type="submit" name="action" value="approved" class="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600">Verify</button>
-        </div>
-    </form>
-  </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Close</button>
+                <button type="submit" name="action" value="rejected" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">Reject</button>
+                <button type="submit" name="action" value="approved" class="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600">Verify</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-
-<script src=js/package.js></script>
-
+<script src="js/package.js"></script>
 </body>
 </html>

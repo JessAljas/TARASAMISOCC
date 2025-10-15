@@ -141,7 +141,7 @@ body {
 </a>
 
  <a href="./admin/admin_login.php?role=tourism_officer" 
-   class="flex justify-center items-center bg-gradient-to-r from-green-500 via-blue-400 to-blue-700 text-white py-2 px-6 rounded-md shadow-md hover:scale-105 transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
+   class="flex justify-center items-center bg-gradient-to-r from-green-500 via-yellow-400 to-blue-700 text-white py-2 px-6 rounded-md shadow-md hover:scale-105 transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
    <i class="fa-solid fa-briefcase mr-2"></i>
    Login as Tourism Officer
 </a>

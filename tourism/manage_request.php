@@ -162,25 +162,35 @@ $totalPages = ceil($totalSpots / $limit);
             </button>
 
             <!-- Dropdown Menu -->
-            <div id="profileDropdown" 
-                 class="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded hidden z-50">
-                <a href="tourism_profile.php" 
-                   class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 text-sm">
-                    <i class="fas fa-id-badge text-base"></i> View Profile
-                </a>
-                <a href="javascript:void(0)" onclick="openMessageModal()" 
-                   class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 text-sm">
-                    <i class="fas fa-envelope text-base"></i> Message
-                </a>
-                <a href="javascript:void(0)" onclick="openLogoutModal()" 
-                   class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 text-sm">
-                    <i class="fas fa-sign-out-alt text-base"></i> Logout
-                </a>
-            </div>
+           <div id="profileDropdown" 
+            class="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded hidden z-50">
+            <a href="staff_dashboard.php" 
+            class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 text-sm">
+                <i class="fas fa-home text-base"></i> Home
+            </a>
+           <a href="tourism_manage_spots.php" 
+            class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md text-sm transition">
+                <i class="fas fa-cogs text-lg"></i>
+                <span>Manage</span>
+            </a>
+
+            <a href="tourism_profile.php" 
+            class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 text-sm">
+                <i class="fas fa-id-badge text-base"></i> View Profile
+            </a>
+            <a href="javascript:void(0)" onclick="openMessageModal()" 
+            class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 text-sm">
+                <i class="fas fa-envelope text-base"></i> Message
+            </a>
+            <a href="javascript:void(0)" onclick="openLogoutModal()" 
+            class="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 text-sm">
+                <i class="fas fa-sign-out-alt text-base"></i> Logout
+            </a>
+        </div>
+
         </div>
     </div>
 </h1>
-
 
 <!-- Stats -->
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

@@ -230,7 +230,7 @@ $conn->close();
     </div>
 </form>
 <div class="w-full flex justify-center mt-4 items-center">
-    <a href="tourism_dashboard.php" class="text-blue-600 underline hover:text-blue-800 flex items-center">
+    <a href="manage_request.php" class="text-blue-600 underline hover:text-blue-800 flex items-center">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
     </a>
 </div>

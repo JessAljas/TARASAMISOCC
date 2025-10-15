@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
    $roles = [
     'agency' => ['table' => 'agency', 'redirect' => 'agency_dashboard.php'],
-    'tourism_officers' => ['table' => 'tourism_officers', 'redirect' => '../tourism/tourism_dashboard.php']
+    'tourism_officers' => ['table' => 'tourism_officers', 'redirect' => '../tourism/staff_dashboard.php']
 ];
 
     $found = false;

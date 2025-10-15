@@ -114,7 +114,7 @@ $stmt->close();
         <!-- Buttons -->
         <div class="flex flex-col w-full space-y-3">
             <button onclick="openEditModal()" class="w-full bg-green-600 text-white py-2 rounded-xl hover:bg-green-700 transition">Edit Profile</button>
-            <a href="tourism_dashboard.php" class="text-center text-green-600 underline hover:text-green-800">← Back to Home</a>
+            <a href="manage_request.php" class="text-center text-green-600 underline hover:text-green-800">← Back to Home</a>
         </div>
     </div>
 </div>

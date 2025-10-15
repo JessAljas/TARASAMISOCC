@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <div class="mt-4 flex justify-center gap-2" id="pagination"></div>
 
 <div class="w-full flex justify-center mt-4">
-    <a href="tourism_dashboard.php" class="text-blue-600 underline hover:text-blue-800 flex items-center gap-2">
+    <a href="manage_request.php" class="text-blue-600 underline hover:text-blue-800 flex items-center gap-2">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
     </a>
 </div>
