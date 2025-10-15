@@ -57,7 +57,7 @@ $tourist_id = $_SESSION['user']['id'] ?? null;
     <p class="text-gray-600 mb-6">Are you sure you want to log out?</p>
     <div class="flex justify-end space-x-3">
       <button onclick="closeLogoutModal()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700">Cancel</button>
-      <a href="<?= $base ?>logout.php" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white">Logout</a>
+      <a href="<?= $base ?>config/logout.php" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white">Logout</a>
     </div>
   </div>
 </div>

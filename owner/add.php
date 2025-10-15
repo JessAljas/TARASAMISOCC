@@ -4,7 +4,7 @@ include '../config/db_connect.php';
 
 // Redirect if not logged in or role mismatch
 if (!isset($_SESSION['user']['id']) || ($_SESSION['user']['role'] ?? '') !== 'spot_owner') {
-    header("Location: tourist_spot_login.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -267,7 +267,7 @@ $conn->close();
         <p class="mb-6">Are you sure you want to logout?</p>
         <div class="flex justify-center gap-4">
             <button onclick="closeModal('logoutModal')" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-            <a href="../logout.php" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Logout</a>
+            <a href="../config/logout.php" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Logout</a>
         </div>
     </div>
 </div>

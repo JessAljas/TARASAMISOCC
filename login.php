@@ -134,7 +134,7 @@ body {
 
   <!-- Role Selection Buttons Above the Logo -->
   <div class="flex flex-col sm:flex-row sm:justify-between sm:space-x-4 mb-6">
-  <a href="./owner/tourist_spot_login.php?role=spot_owner" 
+  <a href="./owner/login.php?role=spot_owner" 
    class="flex justify-center items-center bg-gradient-to-r from-yellow-500 via-green-500 to-green-600 text-white py-2 px-6 rounded-md shadow-md hover:scale-105 transform transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm">
    <i class="fa-solid fa-user-tie mr-2"></i>
    Login as Spot Owner

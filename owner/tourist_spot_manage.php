@@ -4,7 +4,7 @@ include '../config/db_connect.php';
 
 // Check if logged in as spot owner
 if (!isset($_SESSION['user']['id']) || ($_SESSION['user']['role'] ?? '') !== 'spot_owner') {
-    header("Location: tourist_spot_login.php");
+    header("Location: login.php");
     exit;
 }
 

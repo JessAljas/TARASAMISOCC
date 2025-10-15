@@ -74,7 +74,7 @@ $unread_msg_count = $conn->query("SELECT COUNT(*) AS total FROM inquiries WHERE 
       <p class="text-gray-700 mb-6">Are you sure you want to logout?</p>
       <div class="flex justify-center gap-4">
         <button onclick="closeLogoutModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
-        <a href="../logout.php" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">Logout</a>
+        <a href="../config/logout.php" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">Logout</a>
       </div>
     </div>
   </div>
