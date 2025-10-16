@@ -182,10 +182,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
                     <label class="font-medium">Upload Screenshot</label>
                     <input type="file" name="payment_screenshot" accept="image/*" required class="border p-3 rounded w-full">
 
-            <button type="submit" name="confirm_payment" 
-                class="bg-green-600 text-white py-3 rounded hover:bg-green-700 mt-4 w-full font-semibold text-lg flex items-center justify-center gap-2">
-                <i class="fa-solid fa-check-circle"></i> Confirm Payment
-            </button>
+           <div class="flex justify-between gap-3 mt-4">
+                <button type="submit" name="confirm_payment" 
+                    class="flex items-center justify-center gap-2 w-1/2 bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium text-base">
+                    <i class="fa-solid fa-check-circle"></i> Confirm
+                </button>
+
+                <a href="preview_booking.php" 
+                    class="flex items-center justify-center gap-2 w-1/2 bg-red-500 text-white py-2 rounded font-medium text-base text-center">
+                    <i class="fa-solid fa-xmark"></i> Cancel
+                </a>
+            </div>
 
                 </form>
             </div>

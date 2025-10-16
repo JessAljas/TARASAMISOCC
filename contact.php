@@ -75,6 +75,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
    <?php include 'config/include/header.php'; ?>
 
 <section class="bg-gray-100 py-12">
+    <!-- Centered Intro Text Above Cards -->
+  <div class="text-center mb-10">
+   <h2 class="text-3xl font-bold text-blue-900 mb-2 flex items-center justify-center gap-2"><i class="fa-solid fa-user-circle text-green-600"></i>Contact Us</h2>
+    <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+      We’re happy to assist with your travel inquiries, bookings, or feedback.  
+      Reach out through the form or contact details below.
+    </p>
+  </div>
+
   <div class="container mx-auto px-4 lg:px-20 flex flex-col lg:flex-row gap-10">
 
     <!-- Contact nga Form -->
@@ -95,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div>
           <label class="block font-medium text-gray-700 mb-1">Message</label>
           <textarea name="message" rows="5" required
-                    placeholder="Write your message here..."
+                    placeholder="Write your message here together with your active contact info..."
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"></textarea>
         </div>
         <button type="submit"
@@ -106,18 +115,50 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
 
     <!-- Contact Info ug Map -->
-    <div class="w-full lg:w-1/2 flex flex-col gap-6">
-      <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition">
-        <h2 class="text-3xl font-bold text-blue-900 mb-4">Contact Information</h2>
-        <div class="space-y-3 text-gray-700">
-          <p class="flex items-center"><i class="fas fa-map-marker-alt text-yellow-400 mr-3"></i>Municipality of Tudela, Misamis Occidental, Philippines</p>
-          <p class="flex items-center"><i class="fas fa-phone-alt text-yellow-400 mr-3"></i>+63 912 345 6789</p>
-          <p class="flex items-center"><i class="fas fa-envelope text-yellow-400 mr-3"></i>contact@tarasamisocc.com</p>
-          <p class="flex items-center"><i class="fab fa-facebook text-yellow-400 mr-3"></i>
-            <a href="https://www.facebook.com/TravelBeeTour" target="_blank" class="hover:text-blue-600 underline">Tara Sa Mis.Occ</a>
-          </p>
-        </div>
-      </div>
+<div class="w-full lg:w-1/2 flex flex-col gap-6">
+  <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-2xl transition">
+    <h2 class="text-3xl font-bold text-blue-900 mb-4">Contact Information</h2>
+    
+    <div class="space-y-4 text-gray-700">
+      <!-- Address -->
+      <p class="flex items-center">
+        <i class="fas fa-map-marker-alt text-yellow-400 mr-3"></i>
+        Municipality of Tudela, Misamis Occidental, Philippines
+      </p>
+
+      <!-- Telephone -->
+      <p class="flex items-center">
+        <i class="fas fa-phone-alt text-yellow-400 mr-3"></i>
+        <a href="tel:0885217270" class="hover:text-yellow-500 transition">(088) 521-7270</a>
+      </p>
+
+      <!-- Mobile -->
+      <p class="flex items-center">
+        <i class="fa-solid fa-mobile-screen text-yellow-400 mr-3"></i>
+        <a href="tel:+639518835462" class="hover:text-yellow-500 transition">0951 883 5462</a>
+      </p>
+
+      <!-- Email -->
+      <p class="flex items-center">
+        <i class="fas fa-envelope text-yellow-400 mr-3"></i>
+        <a href="mailto:contact@tarasamisocc.com" class="hover:text-yellow-500 transition">contact@tarasamisocc.com</a>
+      </p>
+
+        <!-- WhatsApp -->
+    <a href="https://wa.me/639817127702" target="_blank" class="hover:text-yellow-500 transition flex items-center gap-1">
+      <i class="fa-brands fa-whatsapp text-yellow-400"></i>
+      <span>+63 981 712 7702</span>
+    </a>
+
+      <!-- Facebook -->
+      <p class="flex items-center">
+        <i class="fab fa-facebook text-yellow-400 mr-3"></i>
+        <a href="https://www.facebook.com/TravelBeeTour" target="_blank" class="hover:text-blue-600 underline">Tara Sa Mis.Occ</a>
+      </p>
+    </div>
+  </div>
+</div>
+
 
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition">
         <div id="map" class="w-full h-72 rounded-lg"></div>

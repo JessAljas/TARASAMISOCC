@@ -25,15 +25,37 @@ include 'config/db_connect.php'; // The database connection file
       <a href="services.php" class="hover:text-orange-600 transition">Services</a>
     </div>
 
-    <!-- Social Media Icons -->
-    <div class="flex space-x-4 text-xl text-white">
-      <a href="https://www.facebook.com/TravelBeeTour" class="hover:text-blue-700 transition"><i class="fa-brands fa-facebook-f"></i></a>
-      <a href="#" class="hover:text-blue-700 transition"><i class="fa-brands fa-twitter"></i></a>
-      <a href="#" class="hover:text-blue-700 transition"><i class="fa-brands fa-instagram"></i></a>
-      <a href="#" class="hover:text-blue-700 transition"><i class="fa-brands fa-youtube"></i></a>
-    </div>
+   <!-- Social Media & Contact Icons -->
+<div class="flex flex-wrap items-center gap-4 text-base text-white">
+  <!-- Facebook -->
+  <a href="https://www.facebook.com/TravelBeeTour" target="_blank"
+     class="flex items-center gap-2 hover:text-blue-600 transition">
+    <i class="fa-brands fa-facebook-f"></i>
+    <span>TravelBeeTour</span>
+  </a>
 
-  </div>
+  <!-- WhatsApp -->
+  <a href="https://wa.me/639817127702" target="_blank"
+     class="flex items-center gap-2 hover:text-red-500 transition">
+    <i class="fa-brands fa-whatsapp"></i>
+    <span>0981 712 7702</span>
+  </a>
+
+  <!-- Mobile -->
+  <a href="tel:+639518835462"
+     class="flex items-center gap-2 hover:text-yellow-400 transition">
+    <i class="fa-solid fa-mobile-screen"></i>
+    <span>0951 883 5462</span>
+  </a>
+
+  <!-- Telephone -->
+  <a href="tel:0885217270"
+     class="flex items-center gap-2 hover:text-blue-400 transition">
+    <i class="fa-solid fa-phone"></i>
+    <span>(088) 521-7270</span>
+  </a>
+</div>
+
 
   <!-- Footer Bottom -->
   <div class="mt-4 text-center text-white text-sm">

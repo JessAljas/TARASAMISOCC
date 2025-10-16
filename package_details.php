@@ -48,8 +48,6 @@ while ($row = $res->fetch_assoc()) {
 $stmt->close();
 
 
-
-
 // ==================== FETCH INCLUSIONS & EXCLUSIONS ==================== //
 $inclusions = [];
 $exclusions = [];
@@ -58,9 +56,6 @@ for ($i = 1; $i <= 4; $i++) {
     if (!empty($package["exclusion$i"])) $exclusions[] = $package["exclusion$i"];
 }
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -358,8 +353,6 @@ z-index: 1;
     <label class="text-gray-700 font-semibold">Price per pax:</label>
     <span class="text-green-600  text-xl" id="price">₱<?= number_format($package['price'],2) ?></span>
 </div>
-
-
         <div class="flex items-center space-x-4">
             <label class="font-semibold">Select Pax:</label>
             <select name="pax" id="pax" class="border rounded px-2 py-1">
@@ -387,15 +380,24 @@ z-index: 1;
            </label>
 
         <div class="flex flex-col items-center space-y-1">
-        <p class="font-semibold text-center">Total Price:</p>
-        <p class="text-green-700 font-bold text-xl text-center underline" id="total">₱<?= number_format($package['price'],2) ?>
-        </p>
+            <p class="font-semibold text-center">Total Price:</p>
+            <p class="text-green-700 font-bold text-xl text-center underline" id="total">
+                ₱<?= number_format($package['price'],2) ?>
+            </p>
         </div>
-            <button type="submit" class="bg-yellow-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
-                Book Now
+
+        <div class="flex justify-center gap-3 mt-3">
+            <button type="submit" 
+                class="bg-green-500 text-white px-4 py-1.5 rounded hover:bg-green-600 font-medium text-sm flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-book"></i> Book Now
             </button>
+
+            <a href="package.php" 
+                class="bg-red-500 text-white px-4 py-1.5 rounded hover:bg-red-600 font-medium text-sm flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </a>
         </div>
-        </div>
+
         </div>
     </form>
 </div>

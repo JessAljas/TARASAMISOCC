@@ -102,57 +102,65 @@ $gcash_total = $total + ($total * 0.025);
                     </li>
                     <li class="text-orange-900"><i class="fa-solid fa-circle-info"></i> Travel organizer / Management is not responsible for any accidents during trips and not liable for any lost/damaged items or leaving behind valuables at hotels or other areas.</li>
                     <li class="text-red-600 font-semibold"><i class="fa-solid fa-circle-info"></i> NO payment, NO reservation.</li>
+                        <p class="text-xs text-red-600 mt-4 text-center">
+                        <i class="fa-solid fa-circle-info"></i> Note: GCash Service Fee (2.5%) applies.</p>
                     <li class="text-orange-900"><i class="fa-solid fa-circle-info"></i> Paying means you agree with our Terms & Conditions.</li>
                 </ul>
-
                 <br>
                 <h2 class="text-xl font-semibold mb-4 text-center">Payment Options</h2>
 
-                <!-- GCash/QR Payment -->
-                <form method="POST" action="gcash_payment.php" onsubmit="return copyBookingInfo(this)" class="mb-6">
-                    <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
-                    <input type="hidden" name="package_id" value="<?= $package_id ?>">
-                    <input type="hidden" name="pax" value="<?= $pax ?>">
-                    <input type="hidden" name="total" value="<?= $gcash_total ?>">
-                    <input type="hidden" name="mode_of_payment" value="GCash QR">
-                    <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
-                    <input type="hidden" name="fullname">
-                    <input type="hidden" name="address">
-                    <input type="hidden" name="email">
-                    <input type="hidden" name="phone">
+<!-- PayMongo Button (Checkout Now) -->
+<form method="POST" action="paymongo_checkout.php" onsubmit="return copyBookingInfo(this)" class="mb-6">
+    <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
+    <input type="hidden" name="package_id" value="<?= $package_id ?>">
+    <input type="hidden" name="pax" value="<?= $pax ?>">
+    <input type="hidden" name="total" value="<?= $total ?>">
+    <input type="hidden" name="mode_of_payment" value="PayMongo">
+    <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
+    <input type="hidden" name="fullname">
+    <input type="hidden" name="address">
+    <input type="hidden" name="email">
+    <input type="hidden" name="phone">
 
-                    <p class="text-1xl font-bold text-green-800 text-center mb-3">
-                        ₱<?= number_format($gcash_total,2) ?> (with service fee)
-                    </p>
+<!-- PayMongo Checkout -->
+<button type="submit" 
+    class="flex items-center justify-center gap-2 w-full bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded font-medium text-sm transition">
+    <i class="fa-solid fa-credit-card"></i> Checkout Now
+</button>
+</form>
 
-                    <p class="text-xs text-red-600 mt-4 text-center">
-                        <i class="fa-solid fa-circle-info"></i> Note: GCash Service Fee (2.5%) applies.
-                    </p><br>
+<!-- GCash/QR Payment -->
+<form method="POST" action="gcash_payment.php" onsubmit="return copyBookingInfo(this)" class="mb-3">
+    <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
+    <input type="hidden" name="package_id" value="<?= $package_id ?>">
+    <input type="hidden" name="pax" value="<?= $pax ?>">
+    <input type="hidden" name="total" value="<?= $gcash_total ?>">
+    <input type="hidden" name="mode_of_payment" value="GCash QR">
+    <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
+    <input type="hidden" name="fullname">
+    <input type="hidden" name="address">
+    <input type="hidden" name="email">
+    <input type="hidden" name="phone">
 
-                    <button type="submit" class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-900 text-white px-4 py-3 rounded font-semibold">
-                        <i class="fa-solid fa-mobile-screen"></i> Pay via GCash
-                    </button>
-                </form>
+    <p class="text-sm font-bold text-green-800 text-center mb-2">
+        ₱<?= number_format($gcash_total,2) ?> (with service fee)
+    </p>
 
-                <!--PayMongo nga button payment -->
-                <form method="POST" action="paymongo_checkout.php" onsubmit="return copyBookingInfo(this)" class="mb-3">
-                    <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
-                    <input type="hidden" name="package_id" value="<?= $package_id ?>">
-                    <input type="hidden" name="pax" value="<?= $pax ?>">
-                    <input type="hidden" name="total" value="<?= $total ?>">
-                    <input type="hidden" name="mode_of_payment" value="PayMongo">
-                    <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
-                    <input type="hidden" name="fullname">
-                    <input type="hidden" name="address">
-                    <input type="hidden" name="email">
-                    <input type="hidden" name="phone">
+    <div class="flex justify-between gap-2 mt-3">
+        <button type="submit" 
+            class="flex items-center justify-center gap-1.5 w-1/2 bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded font-medium text-sm transition">
+            <i class="fa-solid fa-qrcode"></i> Pay via QR
+        </button>
 
-                    <button type="submit" class="flex items-center justify-center gap-2 w-full bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-3 rounded font-semibold">
-                        <i class="fa-solid fa-credit-card"></i> Pay via PayMongo
-                    </button>
-                </form>
+        <a href="package.php" 
+            class="flex items-center justify-center gap-1.5 w-1/2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded font-medium text-sm text-center transition">
+            <i class="fa-solid fa-xmark"></i> Cancel
+        </a>
+    </div>
+</form>
 
-                <div class="mt-4">
+    </form>
+        <div class="mt-4">
                     <p class="text-sm font-semibold mb-2">We Accept:</p>
                     <div class="flex items-center gap-3">
                         <img src="img/gcash.png" alt="GCash" class="h-8">
