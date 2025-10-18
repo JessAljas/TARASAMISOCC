@@ -5,11 +5,23 @@ include 'config/db_connect.php'; // Database connection
 $package_id = $_GET['id'] ?? 0;
 
 // ==================== FETCH PACKAGE ==================== //
-$stmt = $conn->prepare("SELECT * FROM packages WHERE id=?");
-$stmt->bind_param("i", $package_id);
-$stmt->execute();
-$package = $stmt->get_result()->fetch_assoc();
-$stmt->close();
+$package = null;
+if ($package_id) {
+    $stmt = $conn->prepare("SELECT * FROM packages WHERE id=?");
+    $stmt->bind_param("i", $package_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result && $result->num_rows > 0) {
+        $package = $result->fetch_assoc();
+    }
+    $stmt->close();
+}
+
+// If no package found, redirect or show error
+if (!$package) {
+    echo "<p class='text-red-600 text-center mt-6'>Package not found.</p>";
+    exit;
+}
 
 // ==================== FETCH DESTINATIONS ==================== //
 $destinations = [];
@@ -36,7 +48,7 @@ while ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
-// ==================== FETCH ITINERARY (from DB if available) ==================== //
+// ==================== FETCH ITINERARY ==================== //
 $itinerary = [];
 $stmt = $conn->prepare("SELECT time, activity_type, destination_name FROM itinerary WHERE package_id=? ORDER BY time ASC");
 $stmt->bind_param("i", $package_id);
@@ -47,7 +59,6 @@ while ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
-
 // ==================== FETCH INCLUSIONS & EXCLUSIONS ==================== //
 $inclusions = [];
 $exclusions = [];
@@ -56,6 +67,7 @@ for ($i = 1; $i <= 4; $i++) {
     if (!empty($package["exclusion$i"])) $exclusions[] = $package["exclusion$i"];
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

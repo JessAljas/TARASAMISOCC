@@ -30,15 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $email = $_POST['email'] ?? '';
     $phone = $_POST['phone_number'] ?? '';
 
-    // Handle profile image upload
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
         $upload_dir = __DIR__ . '/uploads/';
         $web_upload_dir = 'uploads/';
-
         if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
 
         $ext = strtolower(pathinfo($_FILES['profile_image']['name'], PATHINFO_EXTENSION));
-        $filename = 'user_' . $tourist_id . '_' . time() . '.' . $ext; // unique filename
+        $filename = 'user_' . $tourist_id . '_' . time() . '.' . $ext;
         $target_file = $upload_dir . $filename;
 
         if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $target_file)) {
@@ -88,8 +86,15 @@ $stmt->close();
 
 $current_bookings = [];
 $history_bookings = [];
+$reschedule_requests = [];
+
 while ($row = $all_bookings->fetch_assoc()) {
     $row['total'] = $row['total'] ?: ($row['package_price'] * ($row['pax'] ?? 1));
+
+    if (!empty($row['reschedule_date']) && strtolower($row['status']) === 'reschedule_requested') {
+        $reschedule_requests[] = $row;
+    }
+
     if (in_array(strtolower($row['status']), ['completed', 'rejected'])) {
         $history_bookings[] = $row;
     } else {
@@ -97,13 +102,13 @@ while ($row = $all_bookings->fetch_assoc()) {
     }
 }
 
+
 // Function to get proof path
 function getProofPath($filename) {
     $path = 'uploads/gcash/' . basename($filename);
     return (!empty($filename) && file_exists($path)) ? $path : '';
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -127,7 +132,7 @@ function getProofPath($filename) {
     <?php endif; ?>
 
 <!-- Profile Card -->
-<div class="shadow-lg rounded-2xl p-8 text-center mb-8">
+<div class="shadow-lg rounded-2xl p-8 text-center mb-8 bg-green-50 max-w-2xl mx-auto">
  <img id="profileDisplay" 
      src="<?= htmlspecialchars($display_image) ?>?t=<?= time() ?>" 
      alt="Profile Image" 
@@ -138,11 +143,56 @@ function getProofPath($filename) {
     </h2>
     <p class="text-gray-600"><?= htmlspecialchars($tourist['email']) ?></p>
     <p class="text-gray-600"><?= htmlspecialchars($tourist['phone_number']) ?></p>
+   <div class="flex justify-center mt-4">
     <button onclick="openEditModal()" 
-            class="mt-4 px-6 py-2 rounded-full bg-yellow-500 hover:bg-green-600 text-white font-medium shadow">
-        Edit Profile
+        class="px-6 py-2 rounded-full bg-yellow-500 hover:bg-green-600 text-white font-medium shadow flex items-center justify-center space-x-2">
+        <i class="fas fa-pencil-alt"></i>
+        <span>Edit Profile</span>
     </button>
 </div>
+</div>
+
+<?php if(!empty($reschedule_requests)): ?>
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <?php foreach($reschedule_requests as $row): ?>
+                <div class="flex flex-col justify-between p-3 bg-green-50 rounded-lg border border-green-200 max-w-sm mx-auto shadow-sm">
+                    
+                    <!-- Icon and Booking Details -->
+                    <div class="mb-2 flex items-center space-x-2">
+                        <i class="fas fa-calendar-alt text-yellow-500 text-base"></i>
+                        <span class="font-semibold text-gray-700 text-sm">Reschedule Request</span>
+                    </div>
+                    
+                    <div class="mb-2 space-y-1 text-sm">
+                        <p><strong>Package:</strong> <?= htmlspecialchars($row['package_title'] ?? 'N/A') ?></p>
+                        <p><strong>Original Date:</strong> <?= htmlspecialchars($row['booking_date'] ?? 'N/A') ?></p>
+                        <p><strong>Proposed New Date:</strong> <?= htmlspecialchars($row['reschedule_date'] ?? 'N/A') ?></p>
+                        <p><strong>Reason:</strong> <?= htmlspecialchars($row['reason'] ?? 'Weather Condition / Safety Policy') ?></p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            If you don’t prefer this schedule, you can 
+                            <a href="<?= $base ?>contact.php" class="text-blue-600 underline hover:text-blue-800">
+                                contact us or send a message
+                            </a>. Thank you for understanding, and we wish you a wonderful tour!
+                        </p>
+                    </div>
+                    
+                    <!-- Accept Button -->
+                    <div class="flex justify-end">
+                        <button onclick="respondReschedule(<?= $row['id'] ?>,'approve')" 
+                                class="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-green-700 text-xs">
+                            Okay
+                        </button>
+                    </div>
+
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php else: ?>
+    <p class="text-gray-500 text-center">No reschedule requests at the moment.</p>
+<?php endif; ?>
+
 
 <!-- Booking Tabs -->
 <div class="flex justify-center mb-6">
@@ -151,8 +201,8 @@ function getProofPath($filename) {
 </div>
 
 <!-- Current Bookings -->
-<div id="current-section">
-    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+<div id="current-section" class="flex justify-center">
+    <div class="overflow-x-auto bg-white rounded-xl shadow-md max-w-5xl w-full mx-4">
         <table class="min-w-full text-left">
             <thead class="bg-gray-100">
                 <tr>
@@ -201,8 +251,8 @@ function getProofPath($filename) {
 </div>
 
 <!-- History Bookings -->
-<div id="history-section" class="hidden">
-    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+<div id="history-section" class="hidden flex justify-center">
+    <div class="overflow-x-auto bg-white rounded-xl shadow-md max-w-5xl w-full mx-4">
         <table class="min-w-full text-left">
             <thead class="bg-gray-100">
                 <tr>
@@ -236,13 +286,9 @@ function getProofPath($filename) {
                             <?php 
                                 $proof_path = getProofPath($row['proof_image']);
                             ?>
-                    <?php if($proof_path): ?>
-                        <button onclick="showProof('<?= htmlspecialchars($proof_path) ?>')" 
-                                class="text-blue-600 hover:underline text-sm font-semibold">
-                            View Proof
-                        </button>
-                    <?php endif; ?>
-
+                            <?php if($proof_path): ?>
+                                <button onclick="showProof('<?= htmlspecialchars($proof_path) ?>')" class="text-blue-600 hover:underline text-sm font-semibold">View Proof</button>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -254,7 +300,6 @@ function getProofPath($filename) {
     </div>
 </div>
 </div>
-
 <!-- Proof Modal -->
 <div id="proofModal" class="hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
     <div class="bg-white p-2 rounded-lg relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
@@ -265,8 +310,6 @@ function getProofPath($filename) {
         <img id="proofImg" src="" alt="Proof Image" class="max-w-[95vw] max-h-[90vh] object-contain rounded-lg">
     </div>
 </div>
-
-
 
 <!-- Edit Profile Modal -->
 <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
@@ -298,5 +341,21 @@ function getProofPath($filename) {
 
 <?php include 'config/include/footer.php'; ?>
 <script src="js/prof.js"></script>
+<script>
+function respondReschedule(bookingId, action){
+    fetch('reschedule_response.php',{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:`id=${bookingId}&action=${action}`
+    }).then(res=>res.json()).then(data=>{
+        if(data.success){
+            alert('Your response has been recorded.');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    }).catch(err=>alert('Error: ' + err));
+}
+</script>
 </body>
 </html>

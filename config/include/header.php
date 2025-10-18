@@ -2,7 +2,20 @@
 $base = $base ?? ''; 
 if (session_status() === PHP_SESSION_NONE) session_start();
 include 'config/db_connect.php'; 
+
 $tourist_id = $_SESSION['user']['id'] ?? null;
+
+// Get pending reschedule requests count
+$reschedule_count = 0;
+if ($tourist_id) {
+    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM pay_via_qr WHERE tourist_id = ? AND status = 'reschedule_requested'");
+    $stmt->bind_param("i", $tourist_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+    $reschedule_count = $data['count'] ?? 0;
+    $stmt->close();
+}
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 
@@ -24,10 +37,15 @@ $tourist_id = $_SESSION['user']['id'] ?? null;
     </nav>
 
     <!-- Profile, Search, Logout -->
-    <div class="flex items-center space-x-4">
+    <div class="relative flex items-center space-x-4">
       <?php if ($tourist_id): ?>
-        <a href="<?= $base ?>tourist_profile.php" class="flex items-center hover:text-yellow-300">
+        <a href="<?= $base ?>tourist_profile.php" class="relative flex items-center hover:text-yellow-300">
           <i class="fas fa-user-circle text-3xl"></i>
+          <?php if ($reschedule_count > 0): ?>
+            <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+              <?= $reschedule_count ?>
+            </span>
+          <?php endif; ?>
         </a>
       <?php endif; ?>
 
@@ -96,6 +114,5 @@ $tourist_id = $_SESSION['user']['id'] ?? null;
     setTimeout(() => modal.classList.add('hidden'), 300);
   }
 </script>
-
 
 <script src="js/explo-details.js"></script>

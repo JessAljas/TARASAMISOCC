@@ -107,7 +107,7 @@ function roleIcon($role) {
         </div>
         <div class="card-body p-4 border-t border-gray-200 hidden">
           <p class="text-sm text-gray-500 mb-1">
-            <strong>Subject:</strong> <?= htmlspecialchars($row['subject'] ?: 'No subject') ?>
+            <strong></strong> <?= htmlspecialchars($row['subject'] ?: 'No subject') ?>
           </p>
           <p class="text-sm text-gray-500 mb-2">
             Sent: <?= date('M d, Y H:i', strtotime($row['created_at'])) ?>

@@ -273,7 +273,6 @@
         </div>
         </div>
 
-
         <!-- Edit Modal -->
         <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden overflow-auto z-50">
             <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 relative">
