@@ -1,23 +1,21 @@
 <?php
 $base = $base ?? ''; 
-
 if (session_status() === PHP_SESSION_NONE) session_start();
 include 'config/db_connect.php'; 
-
-// Check if user is logged in
 $tourist_id = $_SESSION['user']['id'] ?? null;
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
 <header class="bg-green-500 text-white shadow-md sticky top-0 z-50 font-[Poppins]">
   <div class="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
 
-    <!-- Logo in Header -->
+    <!-- Logo -->
     <div class="flex items-center space-x-4">
       <img src="<?= $base ?>img/logo.png" alt="Logo" class="h-12 w-12 rounded-full border-2 border-white shadow-md" />
       <span class="text-xl font-bold">Tara sa Mis.Occ</span>
     </div>
 
-    <!-- Navigation -->
+    <!-- Navigation for medium and above -->
     <nav class="hidden md:flex items-center space-x-8 text-white text-sm font-medium">
       <a href="<?= $base ?>Homepage.php" class="flex items-center hover:text-yellow-300"><i class="fas fa-home mr-2"></i>HOME</a>
       <a href="<?= $base ?>package.php" class="flex items-center hover:text-yellow-300"><i class="fas fa-box-open mr-2"></i>PACKAGES</a>
@@ -27,7 +25,6 @@ $tourist_id = $_SESSION['user']['id'] ?? null;
 
     <!-- Profile, Search, Logout -->
     <div class="flex items-center space-x-4">
-      <!-- Profile -->
       <?php if ($tourist_id): ?>
         <a href="<?= $base ?>tourist_profile.php" class="flex items-center hover:text-yellow-300">
           <i class="fas fa-user-circle text-3xl"></i>
@@ -35,19 +32,36 @@ $tourist_id = $_SESSION['user']['id'] ?? null;
       <?php endif; ?>
 
       <!-- Search -->
-      <form action="<?= $base ?>search.php" method="get" class="relative flex items-center bg-white rounded-full px-3 py-1 w-40 sm:w-60 lg:w-72">
+      <form action="<?= $base ?>search.php" method="get" class="relative flex items-center bg-white rounded-full px-3 py-1 w-32 sm:w-48 md:w-60 lg:w-72">
         <input name="q" type="text" placeholder="Search..." class="text-sm text-gray-700 outline-none px-2 py-1 bg-transparent w-full" autocomplete="off" required />
         <button type="submit" class="text-blue-900 hover:text-yellow-500"><i class="fas fa-search"></i></button>
       </form>
 
       <!-- Logout -->
       <?php if ($tourist_id): ?>
-        <button onclick="openLogoutModal()" class="flex items-center text-red-200 hover:text-red-400">
+        <button onclick="openLogoutModal()" class="hidden md:flex items-center text-red-200 hover:text-red-400">
           <i class="fas fa-sign-out-alt mr-2"></i>LOGOUT
         </button>
       <?php endif; ?>
+
+      <!-- Hamburger menu for mobile -->
+      <button id="mobileMenuBtn" class="md:hidden text-white text-2xl focus:outline-none">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
   </div>
+
+  <!-- Mobile Navigation Menu -->
+  <nav id="mobileMenu" class="hidden md:hidden bg-green-400 text-white px-4 py-4 space-y-3">
+    <a href="<?= $base ?>Homepage.php" class="block hover:text-yellow-300"><i class="fas fa-home mr-2"></i>HOME</a>
+    <a href="<?= $base ?>package.php" class="block hover:text-yellow-300"><i class="fas fa-box-open mr-2"></i>PACKAGES</a>
+    <a href="<?= $base ?>services.php" class="block hover:text-yellow-300"><i class="fas fa-concierge-bell mr-2"></i>SERVICES</a>
+    <a href="<?= $base ?>contact.php" class="block hover:text-yellow-300"><i class="fas fa-envelope mr-2"></i>CONTACT</a>
+    <?php if ($tourist_id): ?>
+      <a href="<?= $base ?>tourist_profile.php" class="block hover:text-yellow-300"><i class="fas fa-user-circle mr-2"></i>PROFILE</a>
+      <button onclick="openLogoutModal()" class="block w-full text-left hover:text-red-400"><i class="fas fa-sign-out-alt mr-2"></i>LOGOUT</button>
+    <?php endif; ?>
+  </nav>
 </header>
 
 <!-- Logout Modal -->
@@ -61,5 +75,27 @@ $tourist_id = $_SESSION['user']['id'] ?? null;
     </div>
   </div>
 </div>
+
+<script>
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  mobileMenuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+  });
+
+  function openLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.remove('hidden', 'opacity-0');
+    modal.classList.add('flex', 'opacity-100');
+  }
+
+  function closeLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    modal.classList.add('opacity-0');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+  }
+</script>
+
 
 <script src="js/explo-details.js"></script>

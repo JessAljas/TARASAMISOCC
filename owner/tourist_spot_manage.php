@@ -155,62 +155,56 @@ $stmt->close();
     <?php endif; ?>
 
     <!-- Table List -->
-    <table class="w-full bg-white rounded shadow overflow-hidden border-collapse">
-        <thead class="bg-gray-300 text-black">
-            <tr>
-                <th class="px-4 py-2 text-left">Name</th>
-                <th class="px-4 py-2 text-left">Entrance Fee</th>
-                <th class="px-4 py-2 text-left">Activity</th>
-                <th class="px-4 py-2 text-left">Status</th>
-                <th class="px-4 py-2 text-left">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php foreach ($spots as $spot): ?>
-            <tr class="border-b align-top">
-                <td class="px-4 py-3 align-middle"><?= htmlspecialchars($spot['name_of_tourist_spot']) ?></td>
-                <td class="px-4 py-3 align-middle">₱<?= number_format((float)$spot['entrance_fee'], 2) ?></td>
-                <td class="px-4 py-3 align-middle"><?= htmlspecialchars($spot['activity']) ?></td>
-                <td class="px-4 py-3 align-middle">
-                    <?php
-                        $status = htmlspecialchars($spot['status']);
-                        $status_classes = [
-                            'verified' => 'bg-green-100 text-green-700',
-                            'pending' => 'bg-orange-100 text-orange-700',
-                            'modified' => 'bg-red-100 text-red-700'
-                        ];
-                        $class = $status_classes[$spot['status']] ?? 'bg-gray-100 text-gray-700';
-                    ?>
-                    <span class="<?= $class ?> px-2 py-1 rounded text-sm font-semibold"><?= ucfirst($status) ?></span>
-                </td>
-                <td class="px-4 py-3 align-middle flex gap-2">
-                    <button onclick="openModal(<?= $spot['id'] ?>)" class="bg-blue-500 text-white px-2 py-1 rounded" aria-label="Edit spot <?= htmlspecialchars($spot['name_of_tourist_spot']) ?>">
-                        <i class="fas fa-edit"></i>
-                    </button>
+  <!-- Table List -->
+<table class="w-full bg-white rounded shadow overflow-hidden border-collapse">
+    <thead class="bg-gray-300 text-black">
+        <tr>
+            <th class="px-4 py-2 text-left">Name</th>
+            <th class="px-4 py-2 text-left">Entrance Fee</th>
+            <th class="px-4 py-2 text-left">Location</th>
+            <th class="px-4 py-2 text-left">Status</th>
+            <th class="px-4 py-2 text-left">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($spots as $spot): ?>
+        <tr class="border-b align-top">
+            <td class="px-4 py-3 align-middle"><?= htmlspecialchars($spot['name_of_tourist_spot']) ?></td>
+            <td class="px-4 py-3 align-middle">₱<?= number_format((float)$spot['entrance_fee'], 2) ?></td>
+            <td class="px-4 py-3 align-middle">
+                <?php if(!empty($spot['location'])): ?>
+                    <div class="text-gray-600 text-sm mt-1"> <?= htmlspecialchars($spot['location']) ?></div>
+                <?php endif; ?>
+            </td>
+            <td class="px-4 py-3 align-middle">
+                <?php
+                    $status = htmlspecialchars($spot['status']);
+                    $status_classes = [
+                        'verified' => 'bg-green-100 text-green-700',
+                        'pending' => 'bg-orange-100 text-orange-700',
+                        'modified' => 'bg-red-100 text-red-700'
+                    ];
+                    $class = $status_classes[$spot['status']] ?? 'bg-gray-100 text-gray-700';
+                ?>
+                <span class="<?= $class ?> px-2 py-1 rounded text-sm font-semibold"><?= ucfirst($status) ?></span>
+            </td>
+            <td class="px-4 py-3 align-middle flex gap-2">
+                <button onclick="openModal(<?= $spot['id'] ?>)" class="bg-blue-500 text-white px-2 py-1 rounded" aria-label="Edit spot <?= htmlspecialchars($spot['name_of_tourist_spot']) ?>">
+                    <i class="fas fa-edit"></i>
+                </button>
 
-                    <!-- Delete Button -->
-                    <button 
-                        onclick="openDeleteModal(<?= $spot['id'] ?>, '<?= htmlspecialchars(addslashes($spot['name_of_tourist_spot'])) ?>')" 
-                        class="bg-red-500 text-white px-2 py-1 rounded flex items-center gap-1">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
+                <!-- Delete Button -->
+                <button 
+                    onclick="openDeleteModal(<?= $spot['id'] ?>, '<?= htmlspecialchars(addslashes($spot['name_of_tourist_spot'])) ?>')" 
+                    class="bg-red-500 text-white px-2 py-1 rounded flex items-center gap-1">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table>
 
-                    <!-- Delete Modal -->
-                    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-                        <div class="bg-white rounded-lg shadow-lg p-6 w-96">
-                            <h2 class="text-lg font-bold mb-4">Confirm Delete</h2>
-                            <p id="deleteModalText" class="mb-6">Are you sure you want to delete this spot?</p>
-                            <div class="flex justify-end gap-3">
-                                <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                                <a href="" id="confirmDeleteBtn" class="px-4 py-2 bg-red-500 text-white rounded">Delete</a>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
 
     <!-- Pagination -->
     <div class="flex justify-center mt-4 gap-2" role="navigation" aria-label="Pagination">
