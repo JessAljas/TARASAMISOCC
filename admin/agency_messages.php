@@ -73,96 +73,88 @@ function roleIcon($role) {
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
-<style>
-  .card-header { cursor: pointer; }
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-green-50 flex min-h-screen font-[Poppins]">
+  <body class="flex font-[Poppins]">
 
-<!-- Sidebar -->
-<div class="w-64 bg-green-500 text-white min-h-screen sticky top-0">
+    <!-- Sidebar -->
     <?php include 'sidebar.php'; ?>
-</div>
 
-<!-- Main content -->
-<div class="flex-1 flex flex-col min-h-screen">
-
-<header class="bg-green-100 text-black shadow p-4 sticky top-0 z-10">
-  <div class="container mx-auto flex items-center justify-center gap-3">
-    <h1 class="text-2xl font-bold">Inquiries</h1>
-  </div>
-</header>
-
-<main class="flex-1 container mx-auto p-6">
-
-  <?php if ($result && $result->num_rows > 0): ?>
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-<?php while($row = $result->fetch_assoc()): ?>
-  <div class="bg-gradient-to-r from-green-100 to-green-50 shadow-lg rounded-xl overflow-hidden <?= ($row['status'] ?? 'unread')=='unread' ? 'border-l-4 border-yellow-400' : '' ?> max-w-xs mx-auto">
-    <div class="card-header flex justify-between items-center p-4" onclick="toggleCard(this)">
-      <div>
-        <h2 class="text-md font-semibold text-gray-800">
-          <?= roleIcon($row['sender_role']) ?> <?= htmlspecialchars($row['sender_name'] ?? 'No name') ?>
-        </h2>
-        <p class="text-sm text-gray-500">
-          <?= htmlspecialchars($row['sender_email'] ?? 'No email found') ?>
-        </p>
-        <p class="text-xs text-gray-400"><?= formatRole($row['sender_role']) ?></p>
+   <div id="mainContent" class="flex-1">
+    <main class="max-w-5xl mx-auto mt-8 p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
+                <span>Inquiries</span>
+            </h1>
+        </div>
+        <?php if ($result && $result->num_rows > 0): ?>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <?php while($row = $result->fetch_assoc()): ?>
+      <div class="bg-gradient-to-r from-green-100 to-green-50 shadow-lg rounded-xl overflow-hidden <?= ($row['status'] ?? 'unread')=='unread' ? 'border-l-4 border-yellow-400' : '' ?> max-w-xs mx-auto">
+        <div class="card-header flex justify-between items-center p-4" onclick="toggleCard(this)">
+          <div>
+            <h2 class="text-md font-semibold text-gray-800">
+              <?= roleIcon($row['sender_role']) ?> <?= htmlspecialchars($row['sender_name'] ?? 'No name') ?>
+            </h2>
+            <p class="text-sm text-gray-500">
+              <?= htmlspecialchars($row['sender_email'] ?? 'No email found') ?>
+            </p>
+            <p class="text-xs text-gray-400"><?= formatRole($row['sender_role']) ?></p>
+          </div>
+          <span class="px-2 py-1 rounded text-xs <?= ($row['status'] ?? 'unread')=='unread' ? 'bg-yellow-400 text-gray-800' : 'bg-green-500 text-white' ?>">
+            <?= ucfirst($row['status'] ?? 'unread') ?>
+          </span>
+        </div>
+        <div class="card-body p-4 border-t border-gray-200 hidden">
+          <p class="text-sm text-gray-500 mb-1">
+            <strong>Subject:</strong> <?= htmlspecialchars($row['subject'] ?: 'No subject') ?>
+          </p>
+          <p class="text-sm text-gray-500 mb-2">
+            Sent: <?= date('M d, Y H:i', strtotime($row['created_at'])) ?>
+          </p>
+          <p class="text-gray-700 mb-4 text-sm"><?= nl2br(htmlspecialchars($row['message'])) ?></p>
+          <div class="flex gap-2 flex-wrap">
+            <?php if(($row['status'] ?? 'unread')=='unread'): ?>
+              <a href="?read_id=<?= $row['id'] ?>" 
+                 class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition">
+                 Mark as Read
+              </a>
+            <?php endif; ?>
+            <button 
+              class="deleteBtn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"
+              data-id="<?= $row['id'] ?>">
+              Delete
+            </button>
+          </div>
+        </div>
       </div>
-      <span class="px-2 py-1 rounded text-xs <?= ($row['status'] ?? 'unread')=='unread' ? 'bg-yellow-400 text-gray-800' : 'bg-green-500 text-white' ?>">
-        <?= ucfirst($row['status'] ?? 'unread') ?>
-      </span>
+      <?php endwhile; ?>
     </div>
-    <div class="card-body p-4 border-t border-gray-200 hidden">
-      <p class="text-sm text-gray-500 mb-1">
-        <strong>Subject:</strong> <?= htmlspecialchars($row['subject'] ?: 'No subject') ?>
-      </p>
-      <p class="text-sm text-gray-500 mb-2">
-        Sent: <?= date('M d, Y H:i', strtotime($row['created_at'])) ?>
-      </p>
-      <p class="text-gray-700 mb-4 text-sm"><?= nl2br(htmlspecialchars($row['message'])) ?></p>
-      <div class="flex gap-2">
-        <?php if(($row['status'] ?? 'unread')=='unread'): ?>
-          <a href="?read_id=<?= $row['id'] ?>" 
-             class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition">
-             Mark as Read
-          </a>
-        <?php endif; ?>
 
-        <button 
-            class="deleteBtn bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"
-            data-id="<?= $row['id'] ?>">
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg p-6 w-80 text-center">
+        <h2 class="text-lg font-semibold text-gray-800 mb-3">Confirm Deletion</h2>
+        <p class="text-gray-600 mb-5">Are you sure you want to delete this message?</p>
+        <div class="flex justify-center gap-3">
+          <button id="cancelDelete" 
+                  class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded transition">
+            Cancel
+          </button>
+          <a id="confirmDelete" href="#" 
+             class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition">
             Delete
-        </button>
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-<?php endwhile; ?>
+    <?php else: ?>
+      <p class="text-center text-gray-500 text-lg mt-6">No messages found.</p>
+    <?php endif; ?>
+  </main>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-lg p-6 w-80 text-center">
-    <h2 class="text-lg font-semibold text-gray-800 mb-3">Confirm Deletion</h2>
-    <p class="text-gray-600 mb-5">Are you sure you want to delete this message?</p>
-    <div class="flex justify-center gap-3">
-      <button id="cancelDelete" 
-              class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded transition">
-        Cancel
-      </button>
-      <a id="confirmDelete" href="#" 
-         class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition">
-        Delete
-      </a>
-    </div>
-  </div>
-</div>
-<?php else: ?>
-<p class="text-center text-gray-500 text-lg mt-6">No messages found.</p>
-<?php endif; ?>
 
-</main>
-</div>
 <script src="isset/ms.js"></script>
 </body>
 </html>

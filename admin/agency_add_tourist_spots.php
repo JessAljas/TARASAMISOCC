@@ -149,19 +149,8 @@ $count_query->close();
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
-
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-    
-    <style>
-    body { min-height: 100vh; background-color: #f3f4f6; font-family: 'Inter', sans-serif; }
-    #sidebar { min-width: 16rem; }
-    #mainContent { flex: 1; margin-left: 16rem; padding: 2rem; }
-    @media (max-width: 768px) {
-        #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; position: fixed; z-index:50; }
-        #sidebar.show { transform: translateX(0); }
-        #mainContent { margin-left: 0; transition: margin-left 0.3s ease; }
-    }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
     </head>
     <body class="flex font-[Poppins]">
 
@@ -170,13 +159,6 @@ $count_query->close();
 
     <!-- Ang main Content -->
     <div id="mainContent">
-
-        <!-- Ang mobile toggle code -->
-        <button class="md:hidden mb-4 px-3 py-2 border rounded" onclick="document.getElementById('sidebar').classList.toggle('show')">
-            <i class="fas fa-bars"></i> Menu
-        </button>
-
-        <!-- Ang header -->
         <header class="mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-4">Add Tourist Spot</h1>
         </header>

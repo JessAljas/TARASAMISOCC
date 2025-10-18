@@ -35,7 +35,7 @@ $recent_bookings = $recent_bookings_stmt->get_result();
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
-
+    <link rel="stylesheet" href="css/style.css">
 <style>
 body { margin:0; font-family:sans-serif; }
 #mainContent { transition: margin-left 0.3s; }
@@ -47,28 +47,19 @@ body { margin:0; font-family:sans-serif; }
 .status-completed { background-color:#3b82f6;color:white;padding:.25rem .5rem;border-radius:.25rem;text-align:center; }
 .status-other { background-color:#e5e7eb; color:#374151; padding:.25rem .5rem; border-radius:.25rem; text-align:center; }
 
-/* Scrollable table container */
-.scrollable-table {
-    max-height: 600px; /* Adjust height as needed */
-    overflow-y: auto;
-    overflow-x: auto;
-}
+
 </style>
 </head>
 <body class="bg-gray-100 flex font-[Poppins]">
 
-<!-- Sidebar -->
-<div id="sidebar" class="w-64 bg-green-500 text-white min-h-screen sticky top-0 flex-shrink-0 hidden md:flex flex-col">
     <?php include 'sidebar.php'; ?>
-</div>
-
-<!-- Menu button -->
-<button id="menuBtn" onclick="toggleSidebar()" class="fixed top-3 left-3 bg-green-500 text-white p-2 rounded-md md:hidden flex items-center gap-2">
-  <i id="menuIcon" class="fas fa-bars"></i>
-</button>
-
-<!-- Main content -->
-<div id="mainContent" class="flex-1 p-6 transition-all duration-300">
+    <div id="mainContent" class="flex-1">
+    <main class="max-w-5xl mx-auto mt-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
+        <span>Add New Tour Packages</span>
+      </h1>
+    </div>
 
   <!-- Dashboard Cards -->
   <div class="dashboard-cards">

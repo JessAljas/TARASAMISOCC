@@ -120,16 +120,19 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="css/style.css">
   <style>
   .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 50; }
   .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.3);}
   </style>
   </head>
-  <body class="flex min-h-screen bg-gray-100 font-[Poppins]">
+ <body class="bg-gray-100 font-[Poppins]">
 
-  <?php include 'sidebar.php'; ?>
-
-  <div class="flex-1 p-6 md:ml-64">
+ <?php include 'sidebar.php'; ?>
+    <div id="mainContent" class="flex-1">
+    <main class="max-w-5xl mx-auto mt-8">
+    <div class="flex items-center justify-between mb-6">
+    </div>
 
   <!-- Stats Card -->
   <div class="max-w-sm mx-auto bg-gradient-to-r from-yellow-300 to-green-400 shadow rounded-lg p-3 text-center mb-6 text-white">

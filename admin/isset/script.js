@@ -95,11 +95,24 @@ function initSpotMap(lat = 8.15, lng = 123.85, spotName = "Tourist Spot") {
     .openPopup();
 }
 
-// ================== SIDEBAR TOGGLE ==================
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
-  if (sidebar) sidebar.classList.toggle("hidden");
+  if (sidebar) sidebar.classList.toggle("show");
 }
+
+// Close sidebar when clicking outside
+document.addEventListener("click", (e) => {
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("toggleButton");
+  if (
+    window.innerWidth <= 768 &&
+    sidebar &&
+    !sidebar.contains(e.target) &&
+    !toggleBtn.contains(e.target)
+  ) {
+    sidebar.classList.remove("show");
+  }
+});
 
 // ================== BOOKINGS TABLE SEARCH ==================
 function filterBookingsTable() {

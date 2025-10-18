@@ -167,10 +167,12 @@
         <html lang="en">
         <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Manage Packages</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+            <link rel="stylesheet" href="css/style.css">
         </head>
 
         <body class="bg-gray-100 font-[Poppins]">
@@ -203,45 +205,43 @@
         <?php endif; ?>
 
 
-        <div class="overflow-x-auto bg-white shadow rounded-lg p-4">
-        <table class="w-full text-sm border border-gray-300 border-collapse">
-            <thead>
-            <tr class="bg-gray-200 text-left">
-                <th class="px-4 py-2 border border-gray-300">Title</th>
-                <th class="px-4 py-2 border border-gray-300">Price (₱)</th>
-                <th class="px-4 py-2 border border-gray-300">Description</th>
-                <th class="px-4 py-2 border border-gray-300">Meet Up Place</th>
-                <th class="px-4 py-2 border border-gray-300 text-center">Status</th>
-                <th class="px-4 py-2 border border-gray-300 text-center">Actions</th>
-            </tr>
-            </thead>
-            <tbody id="packagesTable">
-            <?php foreach($packages as $pkg): ?>
-            <tr class="hover:bg-gray-50 align-top border-t border-gray-300">
-                <td class="px-4 py-2 font-semibold"><?= htmlspecialchars($pkg['title']) ?></td>
-                <td class="px-4 py-2"><?= number_format($pkg['price'],2) ?></td>
-                <td class="px-4 py-2 text-gray-700"><?= nl2br(htmlspecialchars($pkg['description'])) ?></td>
-                <td class="px-4 py-2">
-                <p class="text-sm"><strong>Pickup:</strong> <?= htmlspecialchars($pkg['pickup_location'] ?? '') ?></p>
-                <p class="text-sm"><strong>Dropoff:</strong> <?= htmlspecialchars($pkg['dropoff_location'] ?? '') ?></p>
-                </td>
-                <td class="px-4 py-2 text-center">
-            <?php
-                $status = !empty($pkg['status']) ? strtolower($pkg['status']) : 'pending';
-                $color = match($status){
-                    'approved' => 'bg-green-200 text-green-800',
-                    'rejected' => 'bg-red-200 text-red-800',
-                    default => 'bg-yellow-200 text-yellow-800', // pending or empty
-                };
-                ?>
-
-                <span class="px-3 py-1 rounded-full text-sm font-semibold <?= $color ?>">
-                    <?= ucfirst($status ?: 'Pending') ?>
-                </span>
-
-
+<div class="overflow-x-auto bg-white shadow rounded-lg p-4">
+  <table class="w-full text-sm border border-gray-300 border-collapse">
+    <thead>
+      <tr class="bg-gray-200 text-left">
+        <th class="px-4 py-2 border border-gray-300">Title</th>
+        <th class="px-4 py-2 border border-gray-300">Price (₱)</th>
+        <!-- Removed Description -->
+        <th class="px-4 py-2 border border-gray-300">Meet Up Place</th>
+        <th class="px-4 py-2 border border-gray-300 text-center">Status</th>
+        <th class="px-4 py-2 border border-gray-300 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="packagesTable">
+      <?php foreach($packages as $pkg): ?>
+      <tr class="hover:bg-gray-50 align-top border-t border-gray-300">
+        <td class="px-4 py-2 font-semibold"><?= htmlspecialchars($pkg['title']) ?></td>
+        <td class="px-4 py-2"><?= number_format($pkg['price'],2) ?></td>
+        <!-- Removed Description -->
+        <td class="px-4 py-2">
+          <p class="text-sm"><strong>Pickup:</strong> <?= htmlspecialchars($pkg['pickup_location'] ?? '') ?></p>
+          <p class="text-sm"><strong>Dropoff:</strong> <?= htmlspecialchars($pkg['dropoff_location'] ?? '') ?></p>
+        </td>
         <td class="px-4 py-2 text-center">
-        <div class="flex justify-center gap-2">
+          <?php
+            $status = !empty($pkg['status']) ? strtolower($pkg['status']) : 'pending';
+            $color = match($status){
+                'approved' => 'bg-green-200 text-green-800',
+                'rejected' => 'bg-red-200 text-red-800',
+                default => 'bg-yellow-200 text-yellow-800',
+            };
+          ?>
+          <span class="px-3 py-1 rounded-full text-sm font-semibold <?= $color ?>">
+            <?= ucfirst($status ?: 'Pending') ?>
+          </span>
+        </td>
+        <td class="px-4 py-2 text-center">
+          <div class="flex justify-center gap-2">
             <!-- Edit Button -->
             <button onclick="openEditModal(<?= $pkg['id'] ?>)" 
                 class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-xs flex items-center gap-1">
@@ -255,13 +255,13 @@
                 data-title="<?= htmlspecialchars($pkg['title']) ?>">
             <i class="fas fa-trash-alt"></i> Delete
             </button>
-        </div>
+          </div>
         </td>
-            </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-        </div>
+      </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
+</div>
         <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
             <h3 class="text-lg font-semibold mb-4">Confirm Delete</h3>

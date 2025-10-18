@@ -197,9 +197,6 @@
 
 
 
-
-
-
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -209,27 +206,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-    <style>
-    body { font-family: 'Inter', sans-serif; }
-    #mainContent { margin-left: 16rem; padding: 2rem; }
-    .card { background: white; border-radius: 0.75rem; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    input[type="file"] { border: 1px dashed #d1d5db; padding: 1rem; border-radius: 0.5rem; cursor: pointer; }
-    .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-    </style>
-    <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const sidebar = document.getElementById("sidebar");
-  const toggle = document.getElementById("sidebarToggle");
-
-  if (toggle && sidebar) {
-    toggle.addEventListener("click", function() {
-      sidebar.classList.toggle("active");
-    });
-  }
-});
-</script>
-
+    <link rel="stylesheet" href="css/style.css">
+   
     <script>
     window.onload = function(){
         const max = 4;
