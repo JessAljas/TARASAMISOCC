@@ -130,7 +130,7 @@
 
  <?php include 'sidebar.php'; ?>
     <div id="mainContent" class="flex-1">
-    <main class="max-w-5xl mx-auto mt-8">
+    <main class="max-w-5xl mx-auto mt-1">
     <div class="flex items-center justify-between mb-6">
     </div>
 

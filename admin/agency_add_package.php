@@ -236,7 +236,7 @@
     <?php include 'sidebar.php'; ?>
 
     <div id="mainContent" class="flex-1">
-    <main class="max-w-5xl mx-auto mt-8">
+    <main class="max-w-5xl mx-auto mt-1">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
         <span>Add New Tour Packages</span>

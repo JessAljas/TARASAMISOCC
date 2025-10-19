@@ -110,7 +110,6 @@ if ($res && $res->num_rows > 0) {
             <?php endif; ?>
             </h2>
 
-
             <!-- Location sa tourist spots-->
             <p class="text-gray-700 font-semibold text-sm mt-1"><?= htmlspecialchars($spot['location']) ?></p>
 
@@ -125,18 +124,22 @@ if ($res && $res->num_rows > 0) {
                 Posted by: <?= htmlspecialchars($spot['posted_by_name']) ?>
             </p>
           </div>
-
-          <a href="explore_details.php?id=<?= $spot['id'] ?>" 
-            class="mt-4 inline-block text-black px-4 py-2 rounded text-center bg-gradient-to-r from-yellow-400 to-green-500 
+            <a href="explore_details.php?id=<?= $spot['id'] ?>" 
+            class="inline-block text-black px-6 py-2 rounded text-center bg-gradient-to-r from-yellow-400 to-green-500 
                     hover:from-orange-500 hover:to-red-500 transition-colors duration-300">
-                View Details
-          </a>
+                View Details <i class="fa-solid fa-circle-info ml-2"></i>
+            </a>
 
+            <!-- Card Footer with Image (full width, right under button) -->
+            <div class="mt-0"> <!-- reduce margin -->
+                <img src="img/footer.jpg" alt="Footer Image" class="w-full h-16 object-cover rounded-b-lg">
+            </div>
         </div>
       </div>
     <?php endforeach; ?>
 </div>
 </main>
+
 
 <?php include 'config/include/footer.php'; ?>
 

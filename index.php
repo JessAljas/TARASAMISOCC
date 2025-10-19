@@ -41,16 +41,13 @@
       </a>
     </div>
 
-    <!-- Logo Section (Right) -->
-    <div class="fade-in-up flex justify-center lg:justify-end w-full lg:w-1/2 relative mt-8 lg:mt-0">
-      <img src="img/logo.png" alt="Main Logo" 
-           class="w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full shadow-2xl border-4 border-green-200 object-cover bounce-slow">
-      <img src="img/bee-logo.png" alt="Bee Logo" 
-           class="absolute bottom-4 right-6 w-14 h-14 sm:w-16 sm:h-16 animate-bounce">
-    </div>
-
-  </div>
-
+ <!-- Logo Section (Right) -->
+<div class="fade-in-up flex justify-center lg:justify-end w-full lg:w-1/2 relative mt-8 lg:mt-0">
+  <img src="img/logo.png" alt="Main Logo" 
+       class="w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full shadow-2xl border-4 border-green-200 object-cover bounce-slow">
+  <img src="img/bee-logo.png" alt="Bee Logo" 
+       class="absolute bottom-4 right-6 w-20 h-20 sm:w-24 sm:h-24 animate-bounce">
+</div>
 </main>
 
 

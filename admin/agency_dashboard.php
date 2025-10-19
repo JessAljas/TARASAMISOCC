@@ -54,7 +54,7 @@ body { margin:0; font-family:sans-serif; }
 
     <?php include 'sidebar.php'; ?>
     <div id="mainContent" class="flex-1">
-    <main class="max-w-5xl mx-auto mt-8">
+    <main class="max-w-5xl mx-auto mt-1">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-gray-800 flex items-center space-x-3">
         <span>Add New Tour Packages</span>
@@ -98,41 +98,50 @@ body { margin:0; font-family:sans-serif; }
       </div>
     </div>
 
-    <table class="min-w-full text-left border border-gray-200" id="bookingsTable">
-      <thead>
-        <tr class="bg-gray-100">
-          <th class="px-3 py-2 border">Tourist</th>
-          <th class="px-3 py-2 border">Package</th>
-          <th class="px-3 py-2 border">Reference No.</th>
-          <th class="px-3 py-2 border">Status</th>
-          <th class="px-3 py-2 border">Pax</th>
-          <th class="px-3 py-2 border">Date Book</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php while($row = $recent_bookings->fetch_assoc()): ?>
-        <tr class="border">
-          <td class="px-3 py-2 border"><?= htmlspecialchars($row['fullname']) ?></td>
-          <td class="px-3 py-2 border"><?= htmlspecialchars($row['package_title']) ?></td>
-          <td class="px-3 py-2 border"><?= htmlspecialchars($row['reference_number']) ?></td>
-          <td class="px-3 py-2 border">
-            <?php 
-            $status = strtolower($row['status'] ?? '');
-            if($status === 'approved') $status_class = 'status-approved';
-            elseif($status === 'pending') $status_class = 'status-pending';
-            elseif($status === 'completed') $status_class = 'status-completed';
-            else $status_class = 'status-other';
-            ?>
-            <span class="<?= $status_class ?>"><?= ucfirst($status ?: 'Pending') ?></span>
-          </td>
-          <td class="px-3 py-2 border"><?= intval($row['pax']) ?></td>
-          <td class="px-3 py-2 border"><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
-        </tr>
-        <?php endwhile; ?>
-      </tbody>
-    </table>
-  </div>
-</div>
+   <table class="min-w-full text-left border border-gray-200" id="bookingsTable">
+  <thead>
+    <tr class="bg-gray-100">
+      <th class="px-3 py-2 border">Reference No.</th>
+      <th class="px-3 py-2 border">Tourist</th>
+      <th class="px-3 py-2 border">Package</th>
+      <th class="px-3 py-2 border">Status</th>
+      <th class="px-3 py-2 border">Pax</th>
+      <th class="px-3 py-2 border">Date Book</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <?php while($row = $recent_bookings->fetch_assoc()): ?>
+    <?php 
+      $status = strtolower($row['status'] ?? '');
+      if($status === 'approved') $status_class = 'status-approved';
+      elseif($status === 'pending') $status_class = 'status-pending';
+      elseif($status === 'completed') $status_class = 'status-completed';
+      elseif($status === 'cancelled') $status_class = 'status-cancelled';
+      else $status_class = 'status-other';
+    ?>
+    
+    <tr class="border">
+      <!-- Reference Number with Active Badge -->
+      <td class="px-3 py-2 border text-center">
+        <span class="inline-flex items-center bg-yellow-200 text-green-800 text-xs font-semibold px-3 py-1 rounded-full border border-green-300 shadow-sm">
+          <span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+          <?= htmlspecialchars($row['reference_number']) ?>
+        </span>
+      </td>
+
+      <td class="px-3 py-2 border"><?= htmlspecialchars($row['fullname']) ?></td>
+      <td class="px-3 py-2 border"><?= htmlspecialchars($row['package_title']) ?></td>
+      <td class="px-3 py-2 border text-center">
+        <span class="<?= $status_class ?>"><?= ucfirst($status ?: 'Pending') ?></span>
+      </td>
+      <td class="px-3 py-2 border text-center"><?= intval($row['pax']) ?></td>
+      <td class="px-3 py-2 border text-center"><?= date('M d, Y', strtotime($row['created_at'])) ?></td>
+    </tr>
+    <?php endwhile; ?>
+  </tbody>
+</table>
+
 
 <script src="isset/script.js"></script>
 

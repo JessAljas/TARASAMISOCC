@@ -138,51 +138,62 @@ if ($res && $res->num_rows > 0) {
     <img src="<?= $mainImage ? htmlspecialchars($mainImage) : 'placeholder.jpg' ?>" 
          class="w-full h-56 object-cover rounded-t-xl">
 
-    <div class="p-4 flex flex-col flex-1">
-        <h2 class="text-base font-semibold text-gray-900 leading-snug">
-            <?= htmlspecialchars($package['title'] ?? 'Untitled Package') ?>
-        </h2>
+<!-- Card Content -->
+<div class="relative bg-white rounded-lg shadow p-4 pt-6">
 
-        <!-- Rating + Reviews -->
-        <div class="flex items-center mt-1 text-xs text-gray-500">
-            <?php
-            $avg = round($package['avg_rating'], 1);
-            $fullStars = floor($avg);
-            $halfStar = ($avg - $fullStars) >= 0.5 ? 1 : 0;
-            $emptyStars = 5 - $fullStars - $halfStar;
-
-            for ($i = 0; $i < $fullStars; $i++) echo "⭐";
-            if ($halfStar) echo "⭐"; 
-            for ($i = 0; $i < $emptyStars; $i++) echo "☆";
-            ?>
-            <span class="ml-1">(<?= $package['total_reviews'] ?>)</span>
-        </div>
-
-        <!-- Price -->
-        <p class="mt-2 text-green-600 font-bold text-lg">
-            ₱<?= number_format($package['price'] ?? 0, 2) ?>
-        </p>
-
-        <!-- Short Description -->
-        <p class="mt-1 text-gray-600 text-sm leading-snug line-clamp-2">
-            <?= mb_strimwidth(htmlspecialchars($package['description'] ?? ''), 0, 60, "...") ?>
-        </p>
-
-       <!-- Buttons: View Details & Book Now side by side -->
-<div class="mt-3 flex gap-2">
-    <a href="package_details.php?id=<?= $package['id'] ?? 0 ?>" 
-       class="flex-1 text-center px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
-        <i class="fas fa-eye"></i>
-        View Details
-    </a>
-   <a href="package_details.php?id=<?= $package['id'] ?? 0 ?>#bookingForm" 
-   class="flex-1 text-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
-    <i class="fas fa-calendar-check"></i>
-    Book Now
-</a>
+    <!-- Sunburst Price Badge -->
+<div class="absolute top-2 right-4 w-16 h-16 rounded-full bg-red-400 flex items-center justify-center text-white font-bold text-xs shadow-lg
+            before:content-[''] before:absolute before:inset-0 before:rounded-full before:border-4 before:border-yellow-300">
+    ₱<?= number_format($package['price'] ?? 0, 2) ?>
 </div>
+
+
+    <!-- Package Title -->
+    <h2 class="text-base font-semibold text-gray-900 leading-snug">
+        <?= htmlspecialchars($package['title'] ?? 'Untitled Package') ?>
+    </h2>
+
+    <!-- Rating + Reviews -->
+    <div class="flex items-center mt-1 text-xs text-gray-500">
+        <?php
+        $avg = round($package['avg_rating'], 1);
+        $fullStars = floor($avg);
+        $halfStar = ($avg - $fullStars) >= 0.5 ? 1 : 0;
+        $emptyStars = 5 - $fullStars - $halfStar;
+
+        for ($i = 0; $i < $fullStars; $i++) echo "⭐";
+        if ($halfStar) echo "⭐"; 
+        for ($i = 0; $i < $emptyStars; $i++) echo "☆";
+        ?>
+        <span class="ml-1">(<?= $package['total_reviews'] ?>)</span>
+    </div>
+
+    <!-- Short Description -->
+    <p class="mt-2 text-gray-600 text-sm leading-snug line-clamp-2">
+        <?= mb_strimwidth(htmlspecialchars($package['description'] ?? ''), 0, 60, "...") ?>
+    </p>
+
+    <!-- Buttons -->
+    <div class="mt-3 flex gap-2">
+        <a href="package_details.php?id=<?= $item['id'] ?? 0 ?>" 
+           class="flex-1 text-center px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
+            <i class="fas fa-eye"></i>
+            View Details
+        </a>
+        <a href="package_details.php?id=<?= $item['id'] ?? 0 ?>#bookingForm" 
+           class="flex-1 text-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
+            <i class="fas fa-calendar-check"></i>
+            Book Now
+        </a>
+    </div>
+
+    <!-- Card Footer with Image -->
+    <div class="-mt-2"> <!-- smaller negative margin -->
+        <img src="img/foo.jpg" alt="Footer Image" class="w-full h-12 object-cover rounded-b-lg">
     </div>
     </div>
+    </div>
+
 <?php endforeach; ?>
 
 <?php if(empty($packages)): ?>
