@@ -196,7 +196,7 @@ function getProofPath($filename) {
 
 <!-- Booking Tabs -->
 <div class="flex justify-center mb-6">
-    <button id="tab-current" class="px-6 py-2 bg-green-600 text-white font-medium">Current / Pending</button>
+    <button id="tab-current" class="px-6 py-2 bg-green-600 text-white font-medium">Current</button>
     <button id="tab-history" class="px-6 py-2 bg-gray-300 text-gray-700 font-medium">History</button>
 </div>
 

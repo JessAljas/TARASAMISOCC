@@ -143,26 +143,38 @@ document.getElementById("messageForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
   const formData = new FormData(this);
-  formData.append(
-    "sender_id",
-    parseInt(document.getElementById("userId").textContent)
-  );
+  const userIdEl = document.getElementById("userId");
+  if (!userIdEl || !userIdEl.textContent.trim()) {
+    alert("User ID not found. Please refresh the page.");
+    return;
+  }
+
+  formData.append("sender_id", parseInt(userIdEl.textContent));
   formData.append("sender_role", "tourism_officers");
   formData.append("receiver_role", "agency");
 
   fetch("tourism_dashboard.php", { method: "POST", body: formData })
-    .then((res) => res.json())
+    .then(async (res) => {
+      // Try to parse JSON safely
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        console.error("Invalid JSON response:", text);
+        throw new Error("Server returned invalid response.");
+      }
+    })
     .then((data) => {
       if (data.success) {
         alert("Message sent successfully!");
         closeMessageModal();
         this.reset();
       } else {
-        alert("Failed to send message.");
+        alert("Failed to send message: " + (data.error || "Unknown error"));
       }
     })
     .catch((err) => {
-      console.error(err);
-      alert("Error sending message.");
+      console.error("Error sending message:", err);
+      alert("Error sending message. Check console for details.");
     });
 });

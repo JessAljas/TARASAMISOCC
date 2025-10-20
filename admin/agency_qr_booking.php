@@ -121,15 +121,27 @@ if (isset($_POST['action'], $_POST['id'])) {
 
 // Fetch all bookings
 $stmt = $conn->prepare("
-    SELECT q.*, 
-           t.fullname AS tourist_name, 
-           p.title AS package_name,
-           GROUP_CONCAT(ts.name_of_tourist_spot SEPARATOR ', ') AS destinations
+    SELECT 
+        q.*, 
+        q.fullname AS tourist_name,
+        q.phone AS tourist_phone,
+        q.address AS tourist_address,
+        p.title AS package_name,
+        GROUP_CONCAT(
+            CONCAT(
+                i.destination_name, 
+                ' (', TIME_FORMAT(i.time, '%h:%i %p'), 
+                ' - ', i.activity_type, ')'
+            ) 
+            ORDER BY i.time SEPARATOR ', '
+        ) AS itinerary_details,
+        MAX(CASE WHEN i.activity_type LIKE '%Pick%' THEN i.destination_name END) AS pickup_location,
+        MAX(CASE WHEN i.activity_type LIKE '%Drop%' THEN i.destination_name END) AS dropoff_location,
+        MIN(i.time) AS pickup_time,
+        MAX(i.time) AS dropoff_time
     FROM pay_via_qr q
-    LEFT JOIN tourists t ON q.tourist_id = t.id
     LEFT JOIN packages p ON q.package_id = p.id
-    LEFT JOIN package_destinations pd ON p.id = pd.package_id
-    LEFT JOIN tourist_spots ts ON pd.tourist_spot_id = ts.id
+    LEFT JOIN itinerary i ON p.id = i.package_id
     GROUP BY q.id
     ORDER BY q.booking_date DESC
 ");
@@ -205,60 +217,78 @@ body { font-family: 'Poppins', sans-serif; }
 <?php if ($result->num_rows > 0): while ($row = $result->fetch_assoc()):
     $status = strtolower($row['status'] ?: 'pending'); ?>
 <tr 
-    data-id="<?= $row['id'] ?>" 
-    data-status="<?= $status ?>" 
-    data-destinations="<?= htmlspecialchars(implode('|', explode(',', $row['destinations']))) ?>"
+    data-id="<?= htmlspecialchars($row['id'] ?? '') ?>" 
+    data-status="<?= htmlspecialchars($status ?? '') ?>" 
+    data-destinations="<?= htmlspecialchars(implode('|', explode(',', $row['destinations'] ?? ''))) ?>"
     data-tourist="<?= htmlspecialchars($row['tourist_name'] ?? 'N/A') ?>"
     data-email="<?= htmlspecialchars($row['email'] ?? 'N/A') ?>"
+    data-phone="<?= htmlspecialchars($row['phone'] ?? 'N/A') ?>"
+    data-address="<?= htmlspecialchars($row['address'] ?? 'N/A') ?>"
     data-date="<?= htmlspecialchars($row['booking_date'] ?? '') ?>"
+    class="hover:bg-gray-50 transition-colors duration-200"
 >
-
     <!-- Reference Number with Active Badge -->
-    <td class="px-4 py-2 border text-center">
-        <span class="inline-flex items-center bg-yellow-200 text-green-800 text-sm font-semibold px-3 py-1 rounded-full border border-green-300 shadow-sm">
+    <td class="px-4 py-3 border text-center">
+        <span class="inline-flex items-center bg-yellow-100 text-green-800 text-sm font-semibold px-3 py-1 rounded-full border border-green-300 shadow-sm">
             <span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-            <?= htmlspecialchars($row['reference_number']) ?>
+            <?= htmlspecialchars($row['reference_number'] ?? 'N/A') ?>
         </span>
     </td>
 
-    <td class="px-4 py-2 border"><?= htmlspecialchars($row['package_name']) ?></td>
-    <td class="px-4 py-2 border"><?= $row['pax'] ?> pax</td>
-    <td class="px-4 py-2 border">₱<?= number_format($row['total'] ?: $row['price'] * $row['pax'], 2) ?></td>
+    <!-- Package Name -->
+    <td class="px-4 py-3 border"><?= htmlspecialchars($row['package_name'] ?? 'N/A') ?></td>
 
-    <!-- Payment Proof Column -->
-    <td class="px-4 py-2 border text-center">
+    <!-- Pax -->
+    <td class="px-4 py-3 border"><?= htmlspecialchars($row['pax'] ?? '0') ?> pax</td>
+
+    <!-- Total -->
+    <td class="px-4 py-3 border">
+        ₱<?= number_format(($row['total'] ?? ($row['price'] ?? 0) * ($row['pax'] ?? 1)), 2) ?>
+    </td>
+
+    <!-- Payment Proof -->
+    <td class="px-4 py-3 border text-center">
         <?php
-            $img = !empty($row['proof_image']) ? '../' . $row['proof_image'] : (!empty($row['payment_proof']) ? '../' . $row['payment_proof'] : '');
+            $img = '';
+            if (!empty($row['proof_image'])) {
+                $img = '../' . $row['proof_image'];
+            } elseif (!empty($row['payment_proof'])) {
+                $img = '../' . $row['payment_proof'];
+            }
+
             if (!empty($img)): ?>
                 <button 
                     onclick="showProofModal('<?= htmlspecialchars($img) ?>')" 
-                    class="text-blue-600 hover:text-blue-400 flex items-center mx-auto transition duration-200">
+                    class="text-blue-600 hover:text-blue-400 flex items-center justify-center mx-auto transition duration-200">
                     <i class="fas fa-file-alt mr-1"></i> View
                 </button>
             <?php else: ?>
-                <span class="text-gray-400">No proof</span>
+                <span class="text-gray-400 italic">No proof</span>
         <?php endif; ?>
     </td>
 
     <!-- Status -->
-    <td class="px-4 py-2 border text-center">
-        <span class="status-badge status-<?= $status ?>"><?= ucfirst($status) ?></span>
+    <td class="px-4 py-3 border text-center">
+        <span class="px-3 py-1 rounded-full text-sm font-medium 
+            <?= ($status ?? '') === 'approved' ? 'bg-green-100 text-green-700' : 
+                (($status ?? '') === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                'bg-red-100 text-red-700') ?>">
+            <?= ucfirst($status ?? 'Unknown') ?>
+        </span>
     </td>
 
     <!-- Actions -->
-    <td class="px-4 py-2 border flex gap-1 justify-center">
-        <button class="bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300 view-details-btn" title="View Details">
+    <td class="px-4 py-3 border text-center">
+        <button 
+            class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition duration-200 shadow-sm flex items-center justify-center gap-1 view-details-btn"
+            title="View Details"
+        >
             <i class="fas fa-eye"></i>
+            <span class="text-sm font-medium">View</span>
         </button>
-        <?php if ($status !== 'completed'): ?>
-        <button class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-500 complete-btn" title="Mark Completed">
-            <i class="fas fa-check"></i>
-        </button>
-        <?php endif; ?>
     </td>
 </tr>
 
-</tr>
 <?php endwhile; else: ?>
 <tr>
     <td colspan="7" class="text-center py-4 text-gray-500">No bookings found.</td>
@@ -267,6 +297,7 @@ body { font-family: 'Poppins', sans-serif; }
 </tbody>
 </table>
 </div>
+
 
 <!-- ✅ Payment Proof Modal -->
 <div id="proofModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -301,31 +332,59 @@ function closeProofModal() {
 </script>
 
 <!-- Booking Modal -->
-<div id="bookingModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
-  <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
-    <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-700" onclick="closeBookingModal()">✕</button>
+<div id="bookingModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 relative animate-fadeIn">
     
-    <h2 class="text-xl font-semibold text-green-600 mb-4 text-center">Booking Details</h2>
+    <!-- Close Button -->
+    <button 
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition"
+      onclick="closeBookingModal()">✕</button>
+    
+    <!-- Title -->
+    <h2 class="text-2xl font-semibold text-green-600 mb-5 text-center border-b pb-2">
+      Booking Details
+    </h2>
 
-    <div class="space-y-2 text-sm">
-        <p><strong>Reference #:</strong> <span id="modalRef"></span></p>
-        <p><strong>Tourist:</strong> <span id="modalTourist"></span></p>
-        <p><strong>Email:</strong> <span id="modalEmail"></span></p>
-        <p><strong>Package:</strong> <span id="modalPackage"></span></p>
-        <p><strong>Booking Date:</strong> <span id="modalBookingDate"></span></p>
-        <p><strong>Pax:</strong> <span id="modalPax"></span></p>
-        <p><strong>Total:</strong> ₱<span id="modalTotal"></span></p>
-        <p><strong>Status:</strong> <span id="modalStatus" class="status-badge"></span></p>
-        <p><strong>Destinations:</strong></p>
-        <ul id="modalDestinations" class="list-disc list-inside text-gray-700"></ul>
-    </div>
+<!-- Booking Info -->
+<div class="space-y-2 text-sm text-gray-800">
+    <p><strong>Reference #:</strong> <span id="modalRef" class="text-gray-600"></span></p>
+    <p><strong>Tourist:</strong> <span id="modalTourist" class="text-gray-600"></span></p>
+    <p><strong>Email:</strong> <span id="modalEmail" class="text-gray-600"></span></p>
+    <p><strong>Phone:</strong> <span id="modalPhone" class="text-gray-600"></span></p>
+    <p><strong>Address:</strong> <span id="modalAddress" class="text-gray-600"></span></p>
+    <p><strong>Package:</strong> <span id="modalPackage" class="text-gray-600"></span></p>
+    <p><strong>Booking Date:</strong> <span id="modalBookingDate" class="text-gray-600"></span></p>
+    <p><strong>Pax:</strong> <span id="modalPax" class="text-gray-600"></span></p>
+    <p><strong>Total:</strong> <span class="text-green-700 font-semibold">₱<span id="modalTotal"></span></span></p>
+    <p><strong>Status:</strong> 
+        <span id="modalStatus" class="px-2 py-1 rounded text-xs font-medium text-white"></span>
+    </p>
 
-    <div class="mt-6 flex justify-end gap-2">
-      <button id="approveBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Approve</button>
-      <button id="rescheduleBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Reschedule</button>
-      <button id="cancelBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Cancel</button>
+    <!-- Destinations -->
+    <div class="mt-4">
+        <p class="font-semibold text-gray-900 mb-1">Pickup & Drop-off:</p>
+        <ul id="modalPickupDropoff" class="list-disc list-inside text-gray-700 ml-3"></ul>
+
+        <p class="font-semibold text-gray-900 mt-4 mb-1">Full Itinerary:</p>
+        <table id="modalItinerary" class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-100 text-gray-700">
+                <tr>
+                    <th class="px-3 py-2 text-left">Time</th>
+                    <th class="px-3 py-2 text-left">Destination</th>
+                    <th class="px-3 py-2 text-left">Activity</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-600"></tbody>
+        </table>
     </div>
-  </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="mt-6 flex flex-wrap justify-end gap-2">
+    <button id="approveBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition">Approve</button>
+    <button id="completeBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition">Complete</button>
+    <button id="rescheduleBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded transition">Reschedule</button>
+    <button id="cancelBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition">Cancel</button>
 </div>
 
 
@@ -346,44 +405,6 @@ function closeProofModal() {
   </div>
 </div>
 
-<!-- Completed Modal -->
-<div id="completedConfirmModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-xl w-11/12 max-w-md p-6 relative">
-    <button class="absolute top-3 right-3 text-2xl font-bold text-gray-700 hover:text-gray-900" onclick="closeCompletedModal()">&times;</button>
-    <h2 class="text-xl font-semibold mb-4">Complete Booking</h2>
-    <p>Are you sure you want to mark this booking as <strong>completed</strong>?</p>
-    <div class="flex justify-end gap-2 mt-4">
-        <button onclick="closeCompletedModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
-        <button id="confirmCompletedBtn" class="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600">Yes, Complete</button>
-    </div>
-  </div>
-</div>
-
-<!-- Cancel Modal -->
-<div id="cancelConfirmModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-xl w-11/12 max-w-md p-6 relative">
-    <button class="absolute top-3 right-3 text-2xl font-bold text-gray-700 hover:text-gray-900" onclick="closeCancelModal()">&times;</button>
-    <h2 class="text-xl font-semibold mb-4">Cancel Booking</h2>
-    <p>Are you sure you want to cancel this booking?</p>
-    <div class="flex justify-end gap-2 mt-4">
-        <button onclick="closeCancelModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">No</button>
-        <button id="confirmCancelBtn" class="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600">Yes, Cancel</button>
-    </div>
-  </div>
-</div>
-<!-- Approve Modal -->
-<div id="approveConfirmModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
-  <div class="bg-white rounded-xl w-11/12 max-w-md p-6 relative">
-    <button class="absolute top-3 right-3 text-2xl font-bold text-gray-700 hover:text-gray-900" onclick="closeApproveModal()">&times;</button>
-    <h2 class="text-xl font-semibold mb-4">Approve Booking</h2>
-    <p>Are you sure you want to <strong>approve</strong> this booking?</p>
-    <div class="flex justify-end gap-2 mt-4">
-        <button onclick="closeApproveModal()" class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
-        <button id="confirmApproveBtn" class="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600">Yes, Approve</button>
-    </div>
-  </div>
-</div>
-
 <script>
 // =================== Helpers ===================
 function showModal(id){ document.getElementById(id).style.display='flex'; }
@@ -395,158 +416,130 @@ function openRescheduleModal(id, oldDate){
     showModal('rescheduleModal'); 
 }
 function closeRescheduleModal(){ closeModal('rescheduleModal'); }
-function closeCompletedModal(){ closeModal('completedConfirmModal'); }
-function closeCancelModal(){ closeModal('cancelConfirmModal'); }
-function closeApproveModal(){ closeModal('approveConfirmModal'); }
-function showProof(url){ window.open(url,'_blank'); }
 
-// =================== Table Filters ===================
-function filterTable(){
-    const statusVal = $('#statusFilter').val().toLowerCase();
-    const dateVal = $('#dateFilter').val();
-    const searchVal = $('#searchInput').val().toLowerCase();
-
-    $('#bookingsTable tbody tr').each(function(){
-        const row = $(this);
-        const status = row.data('status');
-        const date = row.data('date');
-        const text = row.text().toLowerCase();
-        row.toggle(
-            (statusVal === '' || status === statusVal) &&
-            (dateVal === '' || date === dateVal) &&
-            (text.includes(searchVal))
-        );
-    });
-}
+// =================== Global current booking ID ===================
+let currentBookingId = null;
 
 // =================== Open Booking Modal ===================
-$('.view-details-btn').click(function(){
+$(document).on('click', '.view-details-btn', function(){
     const row = $(this).closest('tr');
-    const id = row.data('id');
+    currentBookingId = row.data('id');
     const status = row.data('status');
 
-    // ✅ Mapping columns
-    const reference = row.find('td:eq(0)').text().trim();
-    const packageName = row.find('td:eq(1)').text().trim();
-    const pax = row.find('td:eq(2)').text().trim();
-    const total = row.find('td:eq(3)').text().replace('₱','').trim();
-
-    // ✅ Get tourist and email
-    const touristName = row.data('tourist') || 'N/A';
-    const touristEmail = row.data('email') || 'N/A';
-
-    // ✅ Fill modal fields
-    $('#modalTourist').text(touristName);
-    $('#modalEmail').text(touristEmail);
-    $('#modalPackage').text(packageName);
+    // Basic info
+    $('#modalRef').text(row.find('td:eq(0)').text().trim());
+    $('#modalPackage').text(row.find('td:eq(1)').text().trim());
+    $('#modalPax').text(row.find('td:eq(2)').text().trim());
+    $('#modalTotal').text(row.find('td:eq(3)').text().replace('₱','').trim());
+    $('#modalTourist').text(row.data('tourist') || 'N/A');
+    $('#modalEmail').text(row.data('email') || 'N/A');
+    $('#modalPhone').text(row.data('phone') || 'N/A');
+    $('#modalAddress').text(row.data('address') || 'N/A');
     $('#modalBookingDate').text(row.data('date') || 'Not specified');
-    $('#modalPax').text(pax);
-    $('#modalTotal').text(total);
-    $('#modalRef').text(reference);
-    $('#modalStatus').text(status).attr('class', 'status-badge status-' + status);
+    $('#modalStatus').text(status).attr('class', 'px-2 py-1 rounded text-xs font-medium text-white ' + 
+        (status === 'approved' ? 'bg-green-500' : status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400'));
 
-    // ✅ Destinations (split by | for accuracy)
-    const dests = row.data('destinations') ? row.data('destinations').split('|') : [];
-    $('#modalDestinations').empty();
-    dests.forEach(d => {
-        if (d.trim() !== '') $('#modalDestinations').append('<li>' + d.trim() + '</li>');
+    // Clear previous itinerary
+    $('#modalPickupDropoff').empty();
+    $('#modalItinerary tbody').empty();
+
+    // Fetch itinerary data
+    $.getJSON('fetch_itinerary.php', { booking_id: currentBookingId }, function(data){
+        if (data.success) {
+            // Show pickup/dropoff
+            data.pickup_dropoff.forEach(p => {
+                $('#modalPickupDropoff').append('<li>' + p.destination_name + ' (' + p.time + ')</li>');
+            });
+
+            // Show itinerary rows
+            data.itinerary.forEach(i => {
+                $('#modalItinerary tbody').append(`
+                    <tr class="border-t">
+                        <td class="px-3 py-1">${i.time}</td>
+                        <td class="px-3 py-1">${i.destination_name}</td>
+                        <td class="px-3 py-1 capitalize">${i.activity_type}</td>
+                    </tr>
+                `);
+            });
+        } else {
+            $('#modalItinerary tbody').append('<tr><td colspan="3" class="px-3 py-2 text-center text-gray-400 italic">No itinerary found</td></tr>');
+        }
     });
 
-    // Buttons
-    $('#approveBtn').off('click').on('click', function(){
-        $('#confirmApproveBtn').data('id', id);
-        showModal('approveConfirmModal');
-    });
-
-    $('#rescheduleBtn').off('click').on('click', function(){
-        openRescheduleModal(id, row.data('date'));
-    });
-
-    $('#cancelBtn').off('click').on('click', function(){
-        $('#confirmCancelBtn').data('id', id);
-        showModal('cancelConfirmModal');
-    });
+    // Show buttons depending on status
+    $('#approveBtn').toggle(status === 'pending');
+    $('#completeBtn').toggle(status === 'approved');
+    $('#rescheduleBtn').toggle(status === 'pending' || status === 'approved');
+    $('#cancelBtn').toggle(status !== 'completed' && status !== 'canceled');
 
     showModal('bookingModal');
 });
 
-// =================== Approve Confirmation ===================
-$('#confirmApproveBtn').off('click').on('click', function(){
-    const id = $(this).data('id');
-    if(!id) return alert('Booking ID not set!');
-    $.post('manage_booking.php', {action:'approve', id}, function(res){
+
+// =================== Modal Button Actions ===================
+$('#approveBtn').click(function(){
+    if(!currentBookingId) return alert('Booking ID not set!');
+    if(!confirm('Approve this booking?')) return;
+    $.post('manage_booking.php', { action:'approve', id: currentBookingId }, function(res){
         const data = JSON.parse(res);
         if(data.success){
-            closeApproveModal();
+            alert('Booking approved!');
             closeBookingModal();
             location.reload();
-        } else {
-            alert('Error approving booking.');
-        }
+        } else alert('Error: ' + (data.error || 'Unknown'));
     });
 });
 
-// =================== Complete Booking ===================
-$('.complete-btn').click(function(){
-    const id = $(this).closest('tr').data('id');
-    $('#confirmCompletedBtn').data('id', id);
-    showModal('completedConfirmModal');
-});
-
-$('#confirmCompletedBtn').off('click').on('click', function(){
-    const id = $(this).data('id');
-    if(!id) return alert('Booking ID not set!');
-    $.post('manage_booking.php', {action:'completed', id}, function(res){
+$('#completeBtn').click(function(){
+    if(!currentBookingId) return alert('Booking ID not set!');
+    if(!confirm('Mark this booking as completed?')) return;
+    $.post('manage_booking.php', { action:'completed', id: currentBookingId }, function(res){
         const data = JSON.parse(res);
         if(data.success){
-            closeCompletedModal();
+            alert('Booking completed!');
             closeBookingModal();
             location.reload();
-        } else {
-            alert(data.error);
-        }
+        } else alert('Error: ' + (data.error || 'Unknown'));
     });
 });
 
-// =================== Cancel Booking ===================
-$('#confirmCancelBtn').off('click').on('click', function(){
-    const id = $(this).data('id');
-    if(!id) return alert('Booking ID not set!');
-    $.post('manage_booking.php', {action:'delete', id}, function(res){
+$('#cancelBtn').click(function(){
+    if(!currentBookingId) return alert('Booking ID not set!');
+    if(!confirm('Cancel this booking?')) return;
+    $.post('manage_booking.php', { action:'delete', id: currentBookingId }, function(res){
         const data = JSON.parse(res);
         if(data.success){
-            closeCancelModal();
+            alert('Booking canceled!');
             closeBookingModal();
             location.reload();
-        } else {
-            alert(data.error);
-        }
+        } else alert('Error: ' + (data.error || 'Unknown'));
     });
 });
 
-// =================== Reschedule Booking ===================
-$('#rescheduleForm').off('submit').on('submit', function(e){
+$('#rescheduleBtn').click(function(){
+    if(!currentBookingId) return alert('Booking ID not set!');
+    const oldDate = $('#modalBookingDate').text();
+    openRescheduleModal(currentBookingId, oldDate);
+});
+
+// =================== Reschedule Form Submit ===================
+$('#rescheduleForm').on('submit', function(e){
     e.preventDefault();
     const id = $('#rescheduleBookingId').val();
     const new_date = $('#rescheduleDate').val();
     if(!id || !new_date) return alert('Please select a new date.');
 
-    $.post('manage_booking.php', {action:'reschedule', id, new_date}, function(res){
+    $.post('manage_booking.php', { action:'reschedule', id, new_date }, function(res){
         const data = JSON.parse(res);
         if(data.success){
-            alert('Reschedule request sent!');
+            alert('Booking rescheduled!');
             closeRescheduleModal();
             closeBookingModal();
             location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
+        } else alert('Error: ' + (data.error || 'Unknown'));
     });
 });
 </script>
-
-
-
 
 </body>
 </html>

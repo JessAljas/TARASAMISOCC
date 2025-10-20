@@ -134,15 +134,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
             <i class="fa-solid fa-check text-green-900 text-4xl"></i>
         </div>
 
-        <h2 class="text-3xl font-bold mb-4">Payment Successful!</h2>
-       <h4 class="text-xl mb-6 text-gray-700">
-    <span class="font-bold italic text-red-600">Thank you for choosing us!</span><br> 
-   <span>
-    We will further review the submitted receipt.
-    </span><br>
-    <h1 class=" italic text-red-600">
-       NOTE:  Please always check the date of your tour since it may be <br>rescheduled due to weather, as stated in our policy.
-    </h2>
+       <h2 class="text-3xl font-bold mb-4 text-green-700">Payment Successful!</h2>
+
+<h4 class="text-lg mb-6 text-gray-700 leading-relaxed">
+  <span class="font-bold italic text-red-600">Thank you for choosing us!</span><br>
+  <span>We will further review the submitted receipt.</span>
+</h4>
+
+<div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-md mb-4">
+  <p class="text-sm text-gray-800">
+    <i class="fa-solid fa-camera text-yellow-600 mr-1"></i>
+    <span class="font-medium">Reminder:</span> Please don’t forget to take a screenshot of this confirmation as proof that you are the one who made the booking.
+  </p>
+</div>
+
+<h2 class="italic text-red-600 text-sm leading-relaxed">
+  NOTE: Always check the date of your tour, as it may be rescheduled due to weather conditions — as stated in our policy.
+</h2>
+
     </h4>
 
         <div class="mb-6 text-gray-700 text-lg space-y-1">

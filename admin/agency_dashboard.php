@@ -63,25 +63,25 @@ body { margin:0; font-family:sans-serif; }
 
   <!-- Dashboard Cards -->
   <div class="dashboard-cards">
-    <div class="dashboard-card bg-yellow-100">
+    <div class="dashboard-card bg-yellow-200">
       <i class="fas fa-hourglass-half text-4xl text-yellow-500 mb-3"></i>
       <h2 class="text-lg font-semibold text-gray-700">Pending Bookings</h2>
       <p class="text-3xl font-bold text-yellow-600 mt-2"><?= $total_bookings_pending ?></p>
     </div>
 
-    <div class="dashboard-card bg-pink-50">
+    <div class="dashboard-card bg-pink-300">
       <i class="fas fa-check-double text-4xl text-pink-500 mb-3"></i>
       <h2 class="text-lg font-semibold text-gray-700">Approved Bookings</h2>
       <p class="text-3xl font-bold text-pink-600 mt-2"><?= $total_bookings_approved ?></p>
     </div>
 
-    <div class="dashboard-card bg-blue-100">
+    <div class="dashboard-card bg-blue-200">
       <i class="fas fa-clipboard-check text-4xl text-blue-600 mb-3"></i>
       <h2 class="text-lg font-semibold text-gray-700">Completed Bookings</h2>
       <p class="text-3xl font-bold text-blue-700 mt-2"><?= $total_bookings_completed ?></p>
     </div>
 
-    <div class="dashboard-card bg-green-100">
+    <div class="dashboard-card bg-green-300">
       <i class="fas fa-money-bill-wave text-4xl text-green-700 mb-3"></i>
       <h2 class="text-lg font-semibold text-gray-700">Total Revenue</h2>
       <p class="text-3xl font-bold text-green-700 mt-2">₱<?= number_format($total_payments_received, 2) ?></p>

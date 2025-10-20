@@ -110,27 +110,31 @@ function roleIcon($role) {
     </div>
 
     <!-- RIGHT CHAT AREA -->
-    <div class="flex-1 bg-gray-100 flex flex-col justify-between">
-      <div id="chatHeader" class="p-4 border-b bg-white hidden">
-        <h2 class="text-lg font-semibold text-gray-800" id="chatName"></h2>
-        <p class="text-sm text-gray-500" id="chatEmail"></p>
-      </div>
-      
-      <div id="chatBody" class="flex-1 overflow-y-auto p-6 hidden">
-        <div class="bg-green-100 p-4 rounded-lg mb-4">
-          <p class="text-gray-700" id="chatSubject"></p>
-          <p class="text-sm text-gray-500" id="chatDate"></p>
-        </div>
-        <div class="bg-white p-4 rounded-lg shadow">
-          <p class="text-gray-700" id="chatMessage"></p>
-        </div>
-      </div>
-
-      <div id="chatFooter" class="p-4 border-t bg-white flex justify-end gap-2 hidden">
-        <a id="markReadBtn" href="#" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Mark as Read</a>
-        <button id="deleteBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Delete</button>
-      </div>
+<div class="flex-1 bg-gray-100 flex flex-col justify-between">
+  <!-- Header -->
+  <div id="chatHeader" class="p-3 border-b bg-white hidden">
+    <h2 class="text-base font-semibold text-gray-800" id="chatName"></h2>
+    <p class="text-xs text-gray-500" id="chatEmail"></p>
+  </div>
+  
+  <!-- Body -->
+  <div id="chatBody" class="flex-1 overflow-y-auto p-4 hidden">
+    <div class="bg-green-100 p-3 rounded-md mb-3">
+      <p class="text-gray-700 text-sm" id="chatSubject"></p>
+      <p class="text-xs text-gray-500" id="chatDate"></p>
     </div>
+    <div class="bg-white p-3 rounded-md shadow">
+      <p class="text-gray-700 text-sm" id="chatMessage"></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div id="chatFooter" class="p-3 border-t bg-white flex justify-end gap-2 hidden">
+    <a id="markReadBtn" href="#" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded text-sm">Mark as Read</a>
+    <button id="deleteBtn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded text-sm">Delete</button>
+  </div>
+</div>
+
   </div>
 </main>
 
