@@ -59,6 +59,21 @@ while ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
+// Fetch unavailable dates
+$package_id = $_GET['id'] ?? 0;
+
+$unavailableDates = [];
+$stmt = $conn->prepare("SELECT date FROM unavailable_dates WHERE package_id=?");
+$stmt->bind_param("i", $package_id);
+$stmt->execute();
+$res = $stmt->get_result();
+while ($row = $res->fetch_assoc()) {
+    $unavailableDates[] = $row['date'];
+}
+$stmt->close();
+
+
+
 // ==================== FETCH INCLUSIONS & EXCLUSIONS ==================== //
 $inclusions = [];
 $exclusions = [];
@@ -418,14 +433,6 @@ z-index: 1;
 <?php include 'config/include/footer.php'; ?>
 
 <script src="js/package.js"></script>
-<script>
-  // Initialize map, booking, and datepicker with PHP data
-  const destinations = <?= json_encode($destinations) ?>;
-  const pricePerPax = <?= $package['price'] ?>;
-  initMap(destinations);
-  initBooking(pricePerPax);
-  initDatePicker();
-</script>
 
 </body>
 </html>

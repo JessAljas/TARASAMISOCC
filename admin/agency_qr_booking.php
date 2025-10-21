@@ -8,7 +8,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'agency') {
     exit;
 }
 
-// Handle AJAX actions
+// ================== Handle AJAX actions ==================
 if (isset($_POST['action'], $_POST['id'])) {
     $id = intval($_POST['id']);
     $action = $_POST['action'];
@@ -36,7 +36,6 @@ if (isset($_POST['action'], $_POST['id'])) {
                 $stmt2->execute();
                 $booking = $stmt2->get_result()->fetch_assoc();
                 $stmt2->close();
-
                 if (!$booking) throw new Exception("Booking not found.");
 
                 $stmt = $conn->prepare("UPDATE pay_via_qr SET status='completed' WHERE id=?");
@@ -50,7 +49,6 @@ if (isset($_POST['action'], $_POST['id'])) {
                 $stmt3 = $conn->prepare("INSERT INTO completed_booking 
                     (booking_id, package_id, tourist_id, pax, transaction_ref, mode_of_payment, status, service_fee, total_amount, checkout_url, approved_by, dateadded) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-
                 $stmt3->bind_param(
                     "iiiisssddss",
                     $booking['id'],
@@ -65,11 +63,9 @@ if (isset($_POST['action'], $_POST['id'])) {
                     '',
                     'agency'
                 );
-
                 if (!$stmt3->execute()) throw new Exception("Insert failed: " . $stmt3->error);
                 $stmt3->close();
                 $conn->commit();
-
                 echo json_encode(['success' => true]);
             } catch (Exception $e) {
                 $conn->rollback();
@@ -84,7 +80,6 @@ if (isset($_POST['action'], $_POST['id'])) {
             }
 
             $new_date = $_POST['new_date'];
-
             $stmtBooking = $conn->prepare("SELECT tourist_id, booking_date FROM pay_via_qr WHERE id=?");
             $stmtBooking->bind_param("i", $id);
             $stmtBooking->execute();
@@ -94,7 +89,6 @@ if (isset($_POST['action'], $_POST['id'])) {
             if ($bookingData) {
                 $tourist_id = $bookingData['tourist_id'];
                 $old_date = $bookingData['booking_date'];
-
                 $stmt = $conn->prepare("UPDATE pay_via_qr SET reschedule_date=?, status='reschedule_requested' WHERE id=?");
                 $stmt->bind_param("si", $new_date, $id);
                 $stmt->execute();
@@ -119,37 +113,109 @@ if (isset($_POST['action'], $_POST['id'])) {
     }
 }
 
-// Fetch all bookings
+// ================== Handle fetch itinerary AJAX ==================
+if (isset($_GET['fetch_itinerary'])) {
+    $booking_id = intval($_GET['booking_id']);
+
+    // Get booking info including package_id
+    $stmt = $conn->prepare("SELECT package_id FROM pay_via_qr WHERE id=?");
+    $stmt->bind_param("i", $booking_id);
+    $stmt->execute();
+    $booking = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$booking) {
+        echo json_encode(['success'=>false,'error'=>'Booking not found']);
+        exit;
+    }
+
+    $package_id = $booking['package_id'];
+
+    // Fetch package details
+    $stmtPackage = $conn->prepare("SELECT title, pickup_location, dropoff_location FROM packages WHERE id=?");
+    $stmtPackage->bind_param("i", $package_id);
+    $stmtPackage->execute();
+    $packageData = $stmtPackage->get_result()->fetch_assoc();
+    $stmtPackage->close();
+
+    // Fetch pickup and dropoff times from itinerary table
+    $pickup_time = $dropoff_time = '';
+    $stmtTime = $conn->prepare("SELECT time FROM itinerary WHERE package_id=? ORDER BY time ASC LIMIT 1");
+    $stmtTime->bind_param("i", $package_id);
+    $stmtTime->execute();
+    $rowTime = $stmtTime->get_result()->fetch_assoc();
+    if ($rowTime) $pickup_time = date("g:i A", strtotime($rowTime['time']));
+    $stmtTime->close();
+
+    $stmtTime = $conn->prepare("SELECT time FROM itinerary WHERE package_id=? ORDER BY time DESC LIMIT 1");
+    $stmtTime->bind_param("i", $package_id);
+    $stmtTime->execute();
+    $rowTime = $stmtTime->get_result()->fetch_assoc();
+    if ($rowTime) $dropoff_time = date("g:i A", strtotime($rowTime['time']));
+    $stmtTime->close();
+
+    // Fetch full itinerary
+    $stmt = $conn->prepare("SELECT time, destination_name, activity_type FROM itinerary WHERE package_id=? ORDER BY time ASC");
+    $stmt->bind_param("i", $package_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $itinerary = [];
+
+    // Add pickup location as first entry
+    if (!empty($packageData['pickup_location'])) {
+        $itinerary[] = [
+            'time' => $pickup_time,
+            'destination_name' => $packageData['pickup_location'],
+            'activity_type' => 'pickup'
+        ];
+    }
+
+    // Add normal itinerary
+    while ($row = $result->fetch_assoc()) {
+        $itinerary[] = $row;
+    }
+    $stmt->close();
+
+    // Add dropoff location as last entry
+    if (!empty($packageData['dropoff_location'])) {
+        $itinerary[] = [
+            'time' => $dropoff_time,
+            'destination_name' => $packageData['dropoff_location'],
+            'activity_type' => 'dropoff'
+        ];
+    }
+
+    // Return JSON including package info
+    echo json_encode([
+        'success' => true,
+        'itinerary' => $itinerary,
+        'package' => [
+            'title' => $packageData['title'] ?? 'N/A',
+            'pickup_location' => $packageData['pickup_location'] ?? 'TBA',
+            'dropoff_location' => $packageData['dropoff_location'] ?? 'TBA',
+            'pickup_time' => $pickup_time,
+            'dropoff_time' => $dropoff_time
+        ]
+    ]);
+    exit;
+}
+
+// ================== Fetch bookings for table ==================
 $stmt = $conn->prepare("
     SELECT 
-        q.*, 
+        q.*,
         q.fullname AS tourist_name,
         q.phone AS tourist_phone,
         q.address AS tourist_address,
-        p.title AS package_name,
-        GROUP_CONCAT(
-            CONCAT(
-                i.destination_name, 
-                ' (', TIME_FORMAT(i.time, '%h:%i %p'), 
-                ' - ', i.activity_type, ')'
-            ) 
-            ORDER BY i.time SEPARATOR ', '
-        ) AS itinerary_details,
-        MAX(CASE WHEN i.activity_type LIKE '%Pick%' THEN i.destination_name END) AS pickup_location,
-        MAX(CASE WHEN i.activity_type LIKE '%Drop%' THEN i.destination_name END) AS dropoff_location,
-        MIN(i.time) AS pickup_time,
-        MAX(i.time) AS dropoff_time
+        p.title AS package_name
     FROM pay_via_qr q
     LEFT JOIN packages p ON q.package_id = p.id
-    LEFT JOIN itinerary i ON p.id = i.package_id
-    GROUP BY q.id
     ORDER BY q.booking_date DESC
 ");
-
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -439,30 +505,46 @@ $(document).on('click', '.view-details-btn', function(){
     $('#modalStatus').text(status).attr('class', 'px-2 py-1 rounded text-xs font-medium text-white ' + 
         (status === 'approved' ? 'bg-green-500' : status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400'));
 
-    // Clear previous itinerary
-    $('#modalPickupDropoff').empty();
+    // Clear previous itinerary and pickup/dropoff
     $('#modalItinerary tbody').empty();
+    $('#modalPickupDropoff').empty();
 
-    // Fetch itinerary data
-    $.getJSON('fetch_itinerary.php', { booking_id: currentBookingId }, function(data){
-        if (data.success) {
-            // Show pickup/dropoff
-            data.pickup_dropoff.forEach(p => {
-                $('#modalPickupDropoff').append('<li>' + p.destination_name + ' (' + p.time + ')</li>');
-            });
-
-            // Show itinerary rows
+    // Fetch itinerary from PHP
+    $.getJSON('manage_booking.php', { fetch_itinerary: 1, booking_id: currentBookingId }, function(data){
+        if (data.success && data.itinerary.length > 0) {
             data.itinerary.forEach(i => {
+                let rowClass = '';
+                let icon = '';
+
+                if(i.activity_type === 'pickup') {
+                    rowClass = 'bg-blue-100 font-semibold';
+                    icon = '🚗 Pickup';
+                } else if(i.activity_type === 'dropoff') {
+                    rowClass = 'bg-red-100 font-semibold';
+                    icon = '🏁 Dropoff';
+                } else {
+                    icon = i.activity_type.charAt(0).toUpperCase() + i.activity_type.slice(1);
+                }
+
+                // Append to itinerary table
                 $('#modalItinerary tbody').append(`
-                    <tr class="border-t">
+                    <tr class="border-t ${rowClass}">
                         <td class="px-3 py-1">${i.time}</td>
                         <td class="px-3 py-1">${i.destination_name}</td>
-                        <td class="px-3 py-1 capitalize">${i.activity_type}</td>
+                        <td class="px-3 py-1">${icon}</td>
                     </tr>
                 `);
+
+                // Append to Pickup & Drop-off list
+                if(i.activity_type === 'pickup' || i.activity_type === 'dropoff'){
+                    $('#modalPickupDropoff').append(
+                        `<li><strong>${i.activity_type.charAt(0).toUpperCase() + i.activity_type.slice(1)}:</strong> ${i.destination_name} at ${i.time}</li>`
+                    );
+                }
             });
         } else {
             $('#modalItinerary tbody').append('<tr><td colspan="3" class="px-3 py-2 text-center text-gray-400 italic">No itinerary found</td></tr>');
+            $('#modalPickupDropoff').append('<li class="italic text-gray-400">No pickup/dropoff info</li>');
         }
     });
 
@@ -474,7 +556,6 @@ $(document).on('click', '.view-details-btn', function(){
 
     showModal('bookingModal');
 });
-
 
 // =================== Modal Button Actions ===================
 $('#approveBtn').click(function(){

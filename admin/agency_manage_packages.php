@@ -157,6 +157,14 @@
         $res = $conn->query("SELECT package_id, tourist_spot_id FROM package_destinations");
         while ($row = $res->fetch_assoc()) $dest_map[$row['package_id']][] = $row['tourist_spot_id'];
 
+                // Fetch existing unavailable dates from DB (assuming table 'unavailable_dates' with column 'date')
+        $existing_dates = [];
+        $res = $conn->query("SELECT date FROM unavailable_dates");
+        while($row = $res->fetch_assoc()) {
+            $existing_dates[] = $row['date']; // format: YYYY-MM-DD
+        }
+
+
         // ==================== FETCH ITINERARIES ==================== //
         $itineraries = [];
         $res = $conn->query("SELECT id, package_id, destination_name, time, activity_type FROM itinerary ORDER BY package_id, time ASC");
@@ -170,9 +178,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Manage Packages</title>
         <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-            <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/style.css">
         </head>
 
         <body class="bg-gray-100 font-[Poppins]">
@@ -203,6 +213,35 @@
         <?php if($success): ?>
         <p id="successMsg" class="text-green-600 mb-2 text-center"><?= $success ?></p>
         <?php endif; ?>
+
+<div class="bg-white shadow rounded-lg p-6 mb-6">
+  <h3 class="text-lg font-semibold mb-2">Mark Unavailable Dates</h3>
+
+  <!-- Package selector -->
+  <div class="mb-4">
+    <label class="font-medium">Select Package:</label>
+    <select id="packageSelect" class="p-2 border rounded w-64">
+        <option value="">-- Choose Package --</option>
+        <?php foreach($packages as $pkg): ?>
+            <option value="<?= $pkg['id'] ?>"><?= htmlspecialchars($pkg['title']) ?></option>
+        <?php endforeach; ?>
+    </select>
+  </div>
+
+  <!-- Month navigation -->
+  <div class="mb-4 flex justify-between items-center">
+      <button id="prevMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&lt;</button>
+      <span id="monthYear" class="font-semibold text-lg"></span>
+      <button id="nextMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&gt;</button>
+  </div>
+
+  <!-- Calendar grid -->
+  <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-center text-sm"></div>
+
+  <!-- Save button -->
+  <button id="saveDatesBtn" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Save Dates</button>
+  <p id="saveMsg" class="mt-2 text-sm text-green-600 hidden">Dates saved successfully!</p>
+</div>
 
 
 <div class="overflow-x-auto bg-white shadow rounded-lg p-4">
@@ -357,6 +396,138 @@
         const spots = <?= json_encode($spots) ?>;
         const dest_map = <?= json_encode($dest_map) ?>;
         const itineraries = <?= json_encode($itineraries) ?>;
+    </script>
+    <script>
+ // ========== Unavailable Dates Calendar ==========
+let unavailableDates = new Set(); // will hold dates for selected package
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+
+const calendarEl = document.getElementById('calendarGrid');
+const monthYearEl = document.getElementById('monthYear');
+const packageSelect = document.getElementById('packageSelect');
+const saveMsg = document.getElementById('saveMsg');
+
+// Generate calendar for a given month/year
+function generateCalendar(month = currentMonth, year = currentYear) {
+    if (!calendarEl) return;
+    calendarEl.innerHTML = '';
+
+    // Update month/year label
+    const monthNames = [
+        "January","February","March","April","May","June",
+        "July","August","September","October","November","December"
+    ];
+    monthYearEl.textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Empty cells for first week
+    for(let i = 0; i < firstDay; i++){
+        const cell = document.createElement('div');
+        calendarEl.appendChild(cell);
+    }
+
+    // Days
+    for(let day = 1; day <= daysInMonth; day++){
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const cell = document.createElement('div');
+        cell.textContent = day;
+        cell.className = 'p-2 border cursor-pointer rounded ' + 
+            (unavailableDates.has(dateStr) ? 'bg-red-500 text-white font-bold' : 'bg-gray-100');
+
+        // Click to toggle unavailable
+        cell.addEventListener('click', () => {
+            if(unavailableDates.has(dateStr)){
+                unavailableDates.delete(dateStr);
+                cell.className = 'p-2 border cursor-pointer rounded bg-gray-100';
+            } else {
+                unavailableDates.add(dateStr);
+                cell.className = 'p-2 border cursor-pointer rounded bg-red-500 text-white font-bold';
+            }
+        });
+
+        calendarEl.appendChild(cell);
+    }
+}
+
+// Month navigation
+document.getElementById('prevMonth').addEventListener('click', () => {
+    currentMonth--;
+    if(currentMonth < 0){
+        currentMonth = 11;
+        currentYear--;
+    }
+    generateCalendar(currentMonth, currentYear);
+});
+
+document.getElementById('nextMonth').addEventListener('click', () => {
+    currentMonth++;
+    if(currentMonth > 11){
+        currentMonth = 0;
+        currentYear++;
+    }
+    generateCalendar(currentMonth, currentYear);
+});
+
+// Load unavailable dates for selected package
+packageSelect?.addEventListener('change', async (e) => {
+    const packageId = e.target.value;
+    if(!packageId){
+        unavailableDates.clear();
+        generateCalendar();
+        return;
+    }
+
+    try {
+        const res = await fetch(`get_unavailable_dates.php?package_id=${packageId}`);
+        const data = await res.json();
+        if(data.success){
+            unavailableDates = new Set(data.dates);
+            generateCalendar();
+        } else {
+            alert(data.message || "Failed to load unavailable dates.");
+        }
+    } catch(err){
+        console.error(err);
+        alert("Error fetching unavailable dates.");
+    }
+});
+
+// Save unavailable dates
+document.getElementById('saveDatesBtn').addEventListener('click', async () => {
+    const packageId = packageSelect.value;
+    if(!packageId){
+        alert("Please select a package first!");
+        return;
+    }
+
+    try {
+const res = await fetch('../api/save_unavailable_dates.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+        package_id: packageId,
+        dates: Array.from(unavailableDates)
+    })
+});
+const data = await res.json();
+if(data.success){
+    saveMsg.classList.remove('hidden');
+    setTimeout(()=> saveMsg.classList.add('hidden'), 3000);
+} else {
+    alert(data.message || "Failed to save dates.");
+}
+
+    } catch(err){
+        console.error(err);
+        alert("Error saving dates.");
+    }
+});
+
+// Initialize calendar
+generateCalendar();
     </script>
 
     <script src="isset/manage_package.js"></script>
