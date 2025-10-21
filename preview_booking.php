@@ -157,8 +157,9 @@ $gcash_total = $total + ($total * 0.025);
             <input type="email" name="email" required class="w-full border rounded px-3 py-2">
           </div>
           <div>
-            <label class="block text-sm font-semibold">Phone Number</label>
-            <input type="text" name="phone" required class="w-full border rounded px-3 py-2">
+         <label class="block text-sm font-semibold">Phone Number</label>
+        <input type="text" name="phone" required maxlength="11" pattern="\d{11}" title="Please enter an 11-digit phone number" class="w-full border rounded px-3 py-2"
+          oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
           </div>
         </form>
       </div>
@@ -171,7 +172,7 @@ $gcash_total = $total + ($total * 0.025);
     <!-- TERMS SECTION -->
     <div class="overflow-y-auto pr-2">
       <h2 class="text-xl font-semibold mb-4 text-center text-gray-800">TERMS AND CONDITIONS:</h2>
-
+      <h6 class="text-sm font-semibold mb-4 text-center text-gray-800">Read First:</h6>
       <ul class="text-xs space-y-2 list-disc list-inside leading-relaxed">
         <li class="text-orange-900">
           <i class="fa-solid fa-circle-info text-orange-700 mr-1"></i>
