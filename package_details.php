@@ -59,18 +59,13 @@ while ($row = $res->fetch_assoc()) {
 }
 $stmt->close();
 
-// Fetch unavailable dates
-$package_id = $_GET['id'] ?? 0;
-
+// Get unavailable/closed dates from packages table
 $unavailableDates = [];
-$stmt = $conn->prepare("SELECT date FROM unavailable_dates WHERE package_id=?");
-$stmt->bind_param("i", $package_id);
-$stmt->execute();
-$res = $stmt->get_result();
-while ($row = $res->fetch_assoc()) {
-    $unavailableDates[] = $row['date'];
+if (!empty($package['closed_dates'])) {
+    $unavailableDates = json_decode($package['closed_dates'], true); // convert JSON string to PHP array
+    if (!is_array($unavailableDates)) $unavailableDates = [];
 }
-$stmt->close();
+
 
 
 
@@ -309,130 +304,213 @@ z-index: 1;
 </div>
 
 
-<div class="md:flex md:space-x-6">
-    <!-- Ratings & Reviews nga card ssa ubos -->
-    <div class="bg-white p-6 rounded shadow mb-6 md:w-1/2 max-h-[400px] md:max-h-[600px] overflow-y-auto">
-        <h2 class="text-2xl font-semibold mb-4">Reviews</h2>
+<div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
+  <!-- Booking Form -->
+  <form
+    id="bookingForm"
+    method="POST"
+    action="preview_booking.php"
+    class="flex-1 bg-white p-8 rounded-2xl shadow-lg border border-gray-100 sticky top-6 space-y-6"
+  >
+    <input type="hidden" name="package_id" value="<?= $package['id'] ?>" />
+    <input type="hidden" name="total" id="total_input" />
 
-        <!-- Display average sa rating -->
-        <?php
-        $avgRating = 0; $countRating = 0;
-        $stmt = $conn->prepare("SELECT AVG(rating) as avg_rating, COUNT(*) as total FROM ratings WHERE package_id=?");
-        $stmt->bind_param("i", $package_id);
-        $stmt->execute();
-        $res = $stmt->get_result()->fetch_assoc();
-        if ($res) {
-            $avgRating = round($res['avg_rating'], 1);
-            $countRating = $res['total'];
-        }
-        ?>
-        <p class="text-lg mb-2">
-            ⭐ <?= $avgRating ?> / 5.0 (<?= $countRating ?> reviews)
-        </p>
-
-        <!-- Review sa list -->
-        <?php
-        $stmt = $conn->prepare("
-            SELECT r.rating, r.created_at, t.fullname 
-            FROM ratings r
-            JOIN tourists t ON r.tourist_id = t.id
-            WHERE r.package_id=?
-            ORDER BY r.created_at DESC
-        ");
-        $stmt->bind_param("i", $package_id);
-        $stmt->execute();
-        $reviews = $stmt->get_result();
-        ?>
-        <ul class="space-y-4">
-            <?php while($rev = $reviews->fetch_assoc()): ?>
-            <li class="border-b pb-2">
-                <p class="font-semibold"><?= htmlspecialchars($rev['fullname']) ?></p>
-                <p><?= str_repeat("⭐", (int)$rev['rating']) ?></p>
-                <p class="text-gray-500 text-sm"><?= $rev['created_at'] ?></p>
-            </li>
-            <?php endwhile; ?>
-        </ul>
-
-        <!-- Only ang tourists ray maka rate -->
-        <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'tourist'): ?>
-        <form action="submit_rating.php" method="POST" class="mt-4">
-            <input type="hidden" name="package_id" value="<?= $package_id ?>">
-            <label for="rating" class="font-semibold">Leave a Rating:</label>
-            <select name="rating" id="rating" class="border rounded px-2 py-1" required>
-                <option value="">Select</option>
-                <?php for($i=1;$i<=5;$i++): ?>
-                    <option value="<?= $i ?>"><?= $i ?> ⭐</option>
-                <?php endfor; ?>
-            </select>
-            <button type="submit" class="bg-yellow-600 text-white px-4 py-1 rounded ml-2">Submit</button>
-        </form>
-        <?php else: ?>
-        <p class="mt-3 text-gray-600 text-sm">You can leave a review here.</p>
-        <?php endif; ?>
+    <div class="border-b pb-3">
+      <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <i class="fa-solid fa-calendar-check text-green-500"></i>
+        Book Your Tour
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">
+        Reserve your spot easily — confirm your booking below.
+      </p>
     </div>
 
-    <!-- Booking Form -->
-    <form id="bookingForm" method="POST" action="preview_booking.php" class="flex flex-col justify-between items-start bg-white p-6 rounded shadow mb-6 md:w-1/2 sticky top-4 space-y-4">
-        <input type="hidden" name="package_id" value="<?= $package['id'] ?>">
-        <input type="hidden" name="total" id="total_input">
+    <div class="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg">
+      <span class="text-gray-700 font-medium">Price per Pax:</span>
+      <span class="text-green-600 text-xl font-semibold" id="price">
+        ₱<?= number_format($package['price'], 2) ?>
+      </span>
+    </div>
 
-       <div class="flex items-center space-x-2">
-    <label class="text-gray-700 font-semibold">Price per pax:</label>
-    <span class="text-green-600  text-xl" id="price">₱<?= number_format($package['price'],2) ?></span>
-</div>
-        <div class="flex items-center space-x-4">
-            <label class="font-semibold">Select Pax:</label>
-            <select name="pax" id="pax" class="border rounded px-2 py-1">
-                <option value="1">Solo</option>
-                <option value="3">3 Pax</option>
-                <option value="5">5 Pax</option>
-                <option value="8">8 Pax</option>
-            </select>
-        </div>
+    <div>
+     <label for="pax" class="font-semibold text-gray-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-users text-green-600"></i> Select Number of Guests</label>
+        <select
+        name="pax"
+        id="pax"
+        class="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-green-500 focus:ring-1 focus:ring-green-400 transition"
+      >
+        <option value="1">Solo (1 Pax)</option>
+        <option value="3">3 Pax</option>
+        <option value="5">5 Pax</option>
+        <option value="8">8 Pax</option>
+      </select>
+    </div>
 
-    <div class="space-y-4">
-        <p class="text-red-500 px-3">
-            🌟 Don’t miss out! Book your tour for tomorrow! 🌟
-        </p>
-     <!-- Select Date -->
-        <div class="flex flex-col">
-            <label class="font-semibold mb-1 flex items-center space-x-2">
-                <span>Select Date:</span>
-                <i class="fas fa-calendar-alt text-gray-600"></i>
-            <div class="relative w-64">
-                <input type="text" name="booking_date" id="booking_date" 
-                   class="border-2 border-green-500 rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-300"  placeholder="Select date" required>
-            </div>
-        </div>
-           </label>
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+      <p class="text-yellow-700 text-sm font-medium">
+        🌟 Don’t miss out! Secure your booking early to guarantee your spot for tomorrow’s tour.
+      </p>
+    </div>
 
-        <div class="flex flex-col items-center space-y-1">
-            <p class="font-semibold text-center">Total Price:</p>
-            <p class="text-green-700 font-bold text-xl text-center underline" id="total">
-                ₱<?= number_format($package['price'],2) ?>
-            </p>
-        </div>
+    <p class="text-red-600 text-sm text-center">
+      <span class="inline-block w-3 h-3 bg-red-500 mr-1 rounded-full align-middle"></span>
+      <em>Dates highlighted in red are</em> <strong>unavailable</strong> <em>for booking.</em>
+    </p>
 
-        <div class="flex justify-center gap-3 mt-3">
-            <button type="submit" 
-                class="bg-green-500 text-white px-4 py-1.5 rounded hover:bg-green-600 font-medium text-sm flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-book"></i> Book Now
-            </button>
+    <div>
+      <label for="booking_date" class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+        <i class="fas fa-calendar-alt text-green-600"></i> Select Tour Date
+      </label>
+      <input
+        type="text"
+        name="booking_date"
+        id="booking_date"
+        class="border-2 border-green-500 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-300"
+        placeholder="Choose a date"
+        required
+      />
+    </div>
 
-            <a href="package.php" 
-                class="bg-red-500 text-white px-4 py-1.5 rounded hover:bg-red-600 font-medium text-sm flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-xmark"></i> Cancel
-            </a>
-        </div>
+    <div class="text-center">
+      <p class="font-semibold text-gray-700">Total Amount</p>
+      <p id="total" class="text-2xl font-bold text-green-700 mt-1 underline">
+        ₱<?= number_format($package['price'], 2) ?>
+      </p>
+    </div>
 
-        </div>
+    <div class="flex justify-center gap-4 pt-2">
+      <button
+        type="submit"
+        class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
+      >
+        <i class="fa-solid fa-check-circle"></i> Confirm Booking
+      </button>
+      <a
+        href="package.php"
+        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
+      >
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+    </div>
+  </form>
+
+  <!-- Reviews Card -->
+ <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border border-gray-100 mt-20 md:mt-28">
+
+  <h3 class="text-2xl font-semibold mb-4 text-center text-gray-800">
+    Share Your Experience: Leave a Review After Your Tour
+    </h3>
+
+    <?php
+      $avgRating = 0; $countRating = 0;
+      $stmt = $conn->prepare("SELECT AVG(rating) as avg_rating, COUNT(*) as total FROM ratings WHERE package_id=?");
+      $stmt->bind_param("i", $package_id);
+      $stmt->execute();
+      $res = $stmt->get_result()->fetch_assoc();
+      if ($res) {
+        $avgRating = round($res['avg_rating'], 1);
+        $countRating = $res['total'];
+      }
+    ?>
+    <p class="text-lg mb-2 text-center">
+      ⭐ <?= $avgRating ?> / 5.0 (<?= $countRating ?> reviews)
+    </p>
+
+    <?php
+      $stmt = $conn->prepare("
+        SELECT r.rating, r.created_at, t.fullname 
+        FROM ratings r
+        JOIN tourists t ON r.tourist_id = t.id
+        WHERE r.package_id=?
+        ORDER BY r.created_at DESC
+      ");
+      $stmt->bind_param("i", $package_id);
+      $stmt->execute();
+      $reviews = $stmt->get_result();
+    ?>
+    <ul class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+      <?php while($rev = $reviews->fetch_assoc()): ?>
+      <li class="border-b pb-2">
+        <p class="font-semibold text-gray-800"><?= htmlspecialchars($rev['fullname']) ?></p>
+        <p><?= str_repeat("⭐", (int)$rev['rating']) ?></p>
+        <p class="text-gray-500 text-sm"><?= $rev['created_at'] ?></p>
+      </li>
+      <?php endwhile; ?>
+    </ul>
+
+    <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'tourist'): ?>
+    <form
+      action="submit_rating.php"
+      method="POST"
+      class="mt-4 flex items-center gap-3 justify-center"
+    >
+      <input type="hidden" name="package_id" value="<?= $package_id ?>" />
+      <label for="rating" class="font-semibold text-gray-700">Leave a Rating:</label>
+      <select
+        name="rating"
+        id="rating"
+        class="border rounded px-2 py-1 focus:border-yellow-500 focus:ring-yellow-400"
+        required
+      >
+        <option value="">Select</option>
+        <?php for($i=1;$i<=5;$i++): ?>
+        <option value="<?= $i ?>"><?= $i ?> ⭐</option>
+        <?php endfor; ?>
+      </select>
+      <button
+        type="submit"
+        class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-1 rounded transition"
+      >
+        Submit
+      </button>
     </form>
+    <?php else: ?>
+    <p class="mt-3 text-gray-600 text-center text-sm">
+      Log in as a tourist to leave a review.
+    </p>
+    <?php endif; ?>
+  </div>
 </div>
+
+
 </main>
 
 <?php include 'config/include/footer.php'; ?>
 
 <script src="js/package.js"></script>
+<script>
+  // Initialize map, booking, and datepicker with PHP data
+  const destinations = <?= json_encode($destinations) ?>;
+  const pricePerPax = <?= $package['price'] ?>;
+  initMap(destinations);
+  initBooking(pricePerPax);
+  initDatePicker();
+</script>
+<script>
+    // Pass unavailable dates from PHP to JavaScript
+    const unavailableDates = <?= json_encode($unavailableDates) ?>;
+    console.log("Closed dates:", unavailableDates); // Optional: check in console
+
+    // Initialize Flatpickr
+    flatpickr("#booking_date", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        disable: unavailableDates, // these dates will be unselectable
+        locale: {
+            firstDayOfWeek: 1 // week starts on Monday
+        },
+        onDayCreate: function(dObj, dStr, fp, dayElem) {
+            const date = dayElem.dateObj.toISOString().split("T")[0];
+            if (unavailableDates.includes(date)) {
+                // Add tooltip for closed dates
+                dayElem.title = "Closed / Not Available";
+                dayElem.style.backgroundColor = "#f87171"; // red-ish background
+                dayElem.style.color = "#fff";
+                dayElem.style.cursor = "not-allowed";
+            }
+        }
+    });
+</script>
 
 </body>
 </html>

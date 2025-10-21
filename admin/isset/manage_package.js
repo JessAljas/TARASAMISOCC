@@ -1,15 +1,35 @@
-// ========== SEARCH FUNCTION ==========
-document.getElementById("searchInput")?.addEventListener("keyup", function () {
-  let filter = this.value.toLowerCase();
-  let rows = document.querySelectorAll("#packagesTable tr");
-  rows.forEach((row) => {
-    let text = row.innerText.toLowerCase();
-    row.style.display = text.includes(filter) ? "" : "none";
-  });
-});
-
-// ========== AUTO-REMOVE MESSAGES ==========
+// ========== SEARCH FUNCTION + AUTO SORT ALPHABETICALLY ==========
 document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("searchInput");
+  const tbody = document.getElementById("packagesTable");
+
+  if (tbody) {
+    // Convert table rows into array
+    let rows = Array.from(tbody.querySelectorAll("tr"));
+
+    // ✅ Sort alphabetically by Title (first column)
+    rows.sort((a, b) => {
+      const titleA = a.cells[0].innerText.toLowerCase();
+      const titleB = b.cells[0].innerText.toLowerCase();
+      return titleA.localeCompare(titleB);
+    });
+
+    // ✅ Re-append sorted rows to table
+    rows.forEach((row) => tbody.appendChild(row));
+
+    // ✅ Real-time search filter
+    if (searchInput) {
+      searchInput.addEventListener("keyup", function () {
+        const filter = this.value.toLowerCase();
+        rows.forEach((row) => {
+          const text = row.innerText.toLowerCase();
+          row.style.display = text.includes(filter) ? "" : "none";
+        });
+      });
+    }
+  }
+
+  // ========== AUTO-REMOVE MESSAGES ==========
   const errorMsg = document.getElementById("errorMsg");
   const successMsg = document.getElementById("successMsg");
 
@@ -81,7 +101,7 @@ function openEditModal(id) {
     const div = document.createElement("div");
     div.classList.add("flex", "items-center", "gap-2");
     div.innerHTML = `<input type="checkbox" name="edit_destinations[]" value="${s.id}" ${checked}>
-                            <label>${s.name_of_tourist_spot}</label>`;
+                     <label>${s.name_of_tourist_spot}</label>`;
     destContainer.appendChild(div);
   });
 
@@ -113,7 +133,6 @@ function openEditModal(id) {
         document.querySelector("form").appendChild(hiddenInput);
       };
       wrapper.appendChild(delBtn);
-
       imagesContainer.appendChild(wrapper);
     }
   }
@@ -133,32 +152,25 @@ function openEditModal(id) {
       const div = document.createElement("div");
       div.classList.add("flex", "gap-2", "items-center");
       div.innerHTML = `
-                    <input type="hidden" name="itinerary_id[${
-                      item.id
-                    }]" value="${item.id}">
-                    <input type="time" name="itinerary_time[${
-                      item.id
-                    }]" value="${item.time}" class="p-1 border rounded w-20">
-                    <input type="text" name="itinerary_activity[${
-                      item.id
-                    }]" value="${
+        <input type="hidden" name="itinerary_id[${item.id}]" value="${item.id}">
+        <input type="time" name="itinerary_time[${item.id}]" value="${
+        item.time
+      }" class="p-1 border rounded w-20">
+        <input type="text" name="itinerary_activity[${item.id}]" value="${
         item.destination_name
       }" placeholder="Destination/Activity" class="p-1 border rounded flex-1">
-                    <select name="itinerary_type[${
-                      item.id
-                    }]" class="p-1 border rounded">
-                        <option value="travel" ${
-                          item.activity_type === "travel" ? "selected" : ""
-                        }>Travel</option>
-                        <option value="arrival" ${
-                          item.activity_type === "arrival" ? "selected" : ""
-                        }>Arrival</option>
-                        <option value="lunch" ${
-                          item.activity_type === "lunch" ? "selected" : ""
-                        }>Lunch</option>
-                    </select>
-                    <button type="button" onclick="removeRow(this)" class="text-red-500 text-sm">&times;</button>
-                `;
+        <select name="itinerary_type[${item.id}]" class="p-1 border rounded">
+          <option value="travel" ${
+            item.activity_type === "travel" ? "selected" : ""
+          }>Travel</option>
+          <option value="arrival" ${
+            item.activity_type === "arrival" ? "selected" : ""
+          }>Arrival</option>
+          <option value="lunch" ${
+            item.activity_type === "lunch" ? "selected" : ""
+          }>Lunch</option>
+        </select>
+        <button type="button" onclick="removeRow(this)" class="text-red-500 text-sm">&times;</button>`;
       itineraryContainer.appendChild(div);
     });
   }
@@ -178,26 +190,17 @@ function addNewItineraryRow() {
   const div = document.createElement("div");
   div.classList.add("flex", "gap-2", "items-center");
   div.innerHTML = `
-            <input type="time" name="itinerary_time[${index}]" class="p-1 border rounded w-20">
-            <input type="text" name="itinerary_activity[${index}]" placeholder="Destination/Activity" class="p-1 border rounded flex-1">
-            <select name="itinerary_type[${index}]" class="p-1 border rounded">
-                <option value="travel">Travel</option>
-                <option value="arrival" selected>Arrival</option>
-                <option value="lunch">Lunch</option>
-            </select>
-            <button type="button" onclick="removeRow(this)" class="text-red-500 text-sm">&times;</button>
-        `;
+    <input type="time" name="itinerary_time[${index}]" class="p-1 border rounded w-20">
+    <input type="text" name="itinerary_activity[${index}]" placeholder="Destination/Activity" class="p-1 border rounded flex-1">
+    <select name="itinerary_type[${index}]" class="p-1 border rounded">
+      <option value="travel">Travel</option>
+      <option value="arrival" selected>Arrival</option>
+      <option value="lunch">Lunch</option>
+    </select>
+    <button type="button" onclick="removeRow(this)" class="text-red-500 text-sm">&times;</button>`;
   container.appendChild(div);
 }
 
 function removeRow(button) {
   button.closest("div").remove();
 }
-document.getElementById("searchInput").addEventListener("keyup", function () {
-  let filter = this.value.toLowerCase();
-  let rows = document.querySelectorAll("#packagesTable tr");
-  rows.forEach((row) => {
-    let text = row.innerText.toLowerCase();
-    row.style.display = text.includes(filter) ? "" : "none";
-  });
-});
