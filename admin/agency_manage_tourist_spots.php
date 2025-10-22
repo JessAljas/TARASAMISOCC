@@ -231,20 +231,19 @@
     <?php endif; ?>
 
     <!-- Search  nga code-->
-    <div class="flex justify-end mb-4">
-        <form method="GET" class="flex items-center gap-2">
-            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" 
-                placeholder="Search..." 
-                class="w-48 border rounded p-2 text-sm">
-            <button class="px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
+ <div class="flex justify-end mb-4">
+  <div class="flex items-center gap-2"><label for="liveSearch" class="font-medium text-gray-700 text-sm">Search:</label>
+    <div class="relative">
+      <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fas fa-search"></i></span>
+      <input type="text" id="liveSearch" placeholder="Search tourist spots..." 
+        class="w-56 border rounded p-2 pl-9 text-sm focus:outline-none focus:ring-2 focus:ring-green-400">
     </div>
+  </div>
+</div>
 
   <!-- Tourist Spots Table -->
 <div class="bg-white shadow rounded-xl overflow-x-auto">
-  <table class="min-w-full border-collapse">
+    <table id="spotsTable" class="min-w-full border-collapse">
     <thead class="bg-gray-100">
       <tr>
         <th class="px-4 py-2 border text-left">Tourist Spots</th>
@@ -436,6 +435,22 @@
 </div>
 
 <script src="isset/spm.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("liveSearch");
+  const table = document.getElementById("spotsTable"); //
+  const rows = table.querySelectorAll("tbody tr");
+
+  searchInput.addEventListener("input", function () {
+    const query = this.value.toLowerCase().trim();
+
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(query) ? "" : "none";
+    });
+  });
+});
+</script>
 
 </body>
 </html>

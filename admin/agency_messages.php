@@ -80,7 +80,7 @@ function roleIcon($role) {
     <!-- Sidebar -->
     <?php include 'sidebar.php'; ?>
 
-   <div id="mainContent" class="flex-1">
+<div id="mainContent" class="flex-1">
 <main class="flex flex-col h-[90vh] bg-gray-50 rounded-lg shadow-md overflow-hidden">
   <div class="flex flex-1">
     <!-- LEFT SIDEBAR: Conversation List -->

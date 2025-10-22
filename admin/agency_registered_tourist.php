@@ -142,19 +142,23 @@
   </div>
 
   <div class="flex items-center justify-between mb-6">
-    <form method="GET" class="flex space-x-2">
-      <button type="submit" class="px-4 py-2 text-black rounded">Search:</button> 
-      <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="🔍 Search tourists..." class="p-2 border rounded">
-    </form>
+    <div class="flex items-center space-x-2 mb-4">
+  <label for="liveSearch" class="font-medium text-gray-700">Search:</label>
+  <div class="relative">
+    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">🔍</span>
+    <input type="text" id="liveSearch" placeholder="Search tourists..." 
+      class="p-2 pl-10 border rounded w-64 focus:ring focus:ring-green-400 focus:outline-none">
+    </div>
+  </div>
 
-    <button onclick="openModal()" class="bg-gradient-to-r from-yellow-400 to-green-400 text-white px-4 py-2 rounded hover:from-orange-500 hover:to-green-500">+ Add Tourist</button>
+  <button onclick="openModal()" class="bg-gradient-to-r from-yellow-400 to-green-400 text-white px-4 py-2 rounded hover:from-orange-500 hover:to-green-500">+ Add Tourist</button>
   </div>
 
   <div id="successMessage" class="hidden text-green-700 text-center mb-4 font-semibold"></div>
 
   <!-- Table -->
   <div class="overflow-x-auto bg-white shadow rounded-lg">
-  <table class="min-w-full divide-y divide-gray-200 text-sm">
+  <table id="touristTable" class="w-full border-collapse border border-gray-300">
     <thead class="bg-gray-200">
       <tr>
         <th class="px-3 py-2 text-left">Full Name</th>
@@ -262,5 +266,21 @@
   </div>
 
   <script src=isset/regtourist_spot.js></script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("liveSearch");
+  const table = document.getElementById("touristTable");
+  const rows = table.querySelectorAll("tbody tr");
+
+  searchInput.addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(query) ? "" : "none";
+    });
+  });
+});
+</script>
   </body>
   </html>

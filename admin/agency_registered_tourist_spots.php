@@ -190,15 +190,14 @@
 
 <!-- Search & add buttons nga code -->
 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-  <form method="GET" class="flex items-center gap-2">
-    <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Search by name, email, phone" class="p-2 border rounded shadow w-64">
-    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600 flex items-center gap-2">
-      <i class="fas fa-search"></i> Search
-    </button>
-    <?php if($search): ?>
-      <a href="agency_registered_tourist_spots.php" class="ml-2 text-gray-600 underline hover:text-gray-800">Clear</a>
-    <?php endif; ?>
-  </form>
+  <div class="flex items-center gap-2 mb-4">
+  <div class="relative"><span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fas fa-search"></i></span>
+    <input type="text" id="liveSearch" placeholder="Search by name, email, phone" 
+    class="p-2 pl-10 border rounded shadow w-64 focus:ring focus:ring-green-400 focus:outline-none">
+  </div>
+  <a href="agency_registered_tourist_spots.php" class="text-gray-600 underline hover:text-gray-800">Clear
+  </a>
+</div>
   <button onclick="openAddModal()" 
     class="bg-gradient-to-r from-yellow-400 to-green-500 text-white px-4 py-2 rounded shadow hover:from-yellow-500 hover:to-green-600 flex items-center gap-2 transition">
     <i class="fas fa-user-plus"></i> Add Tourist Owner
@@ -207,7 +206,7 @@
 
 <!-- Table sa registered nga tourist spot owner -->
 <div class="overflow-x-auto bg-white shadow rounded-lg">
-  <table class="min-w-full">
+  <table id="touristTable" class="w-full border-collapse border border-gray-300">
     <thead class="bg-green-500 text-white">
       <tr>
         <th class="px-6 py-3 text-left text-sm font-medium uppercase">Profile</th>
@@ -331,5 +330,21 @@
 </div>
 
 <script src="isset/regtourist_spot.js"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("liveSearch");
+  const table = document.getElementById("touristTable");
+  const rows = table.querySelectorAll("tbody tr");
+
+  searchInput.addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      row.style.display = text.includes(query) ? "" : "none";
+    });
+  });
+});
+</script>
 </body>
 </html>
