@@ -304,10 +304,12 @@ z-index: 1;
 </div>
 
 
-<div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
-  <!-- Booking Form -->
-<form action="preview_booking.php" method="POST" class="space-y-4">
-
+<!-- Booking Section -->
+<div id="bookingForm" 
+     class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0 
+            border border-green-400 shadow-lg shadow-green-200 bg-white rounded-xl p-6 
+            transition hover:shadow-green-300">
+  <form action="preview_booking.php" method="POST" class="space-y-4">
   <div>
     <label for="pax" class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
       <i class="fa-solid fa-users text-green-600"></i> Select Number of Guests
@@ -340,14 +342,9 @@ z-index: 1;
     <label for="booking_date" class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
       <i class="fas fa-calendar-alt text-green-600"></i> Select Tour Date
     </label>
-    <input
-      type="text"
-      name="booking_date"
-      id="booking_date"
+    <input type="text" name="booking_date" id="booking_date"
       class="border-2 border-green-500 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-300"
-      placeholder="Choose a date"
-      required
-    />
+      placeholder="Choose a date" required/>
   </div>
 
   <div class="text-center">
@@ -366,15 +363,12 @@ z-index: 1;
   <div class="flex justify-center gap-4 pt-2">
     <button
       type="submit"
-      class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
-    >
+      class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition">
       <i class="fa-solid fa-check-circle"></i> Confirm Booking
     </button>
 
-    <a
-      href="package.php"
-      class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
-    >
+    <a href="package.php"
+      class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition">
       <i class="fa-solid fa-xmark"></i> Cancel
     </a>
   </div>

@@ -173,19 +173,23 @@ if ($res && $res->num_rows > 0) {
         <?= mb_strimwidth(htmlspecialchars($package['description'] ?? ''), 0, 60, "...") ?>
     </p>
 
-    <!-- Buttons -->
-    <div class="mt-3 flex gap-2">
-        <a href="package_details.php?id=<?= $package['id'] ?? 0 ?>" 
-           class="flex-1 text-center px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
-            <i class="fas fa-eye"></i>
-            View Details
-        </a>
-        <a href="package_details.php?id=<?= $package['id'] ?? 0 ?>#bookingForm" 
-           class="flex-1 text-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
-            <i class="fas fa-calendar-check"></i>
-            Book Now
-        </a>
-    </div>
+   <!-- Buttons -->
+<div class="mt-3 flex gap-2">
+  <!-- View Details Button -->
+  <a href="package_details.php?id=<?= $package['id'] ?? 0 ?>" 
+     class="flex-1 text-center px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
+      <i class="fas fa-eye"></i>
+      View Details
+  </a>
+
+  <!-- Book Now Button -->
+  <a href="package_details.php?id=<?= $package['id'] ?? 0 ?>#bookingForm"
+     class="flex-1 text-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-1">
+      <i class="fas fa-calendar-check"></i>
+      Book Now
+  </a>
+</div>
+
 
     <!-- Card Footer with Image -->
     <div class="-mt-2"> <!-- smaller negative margin -->
