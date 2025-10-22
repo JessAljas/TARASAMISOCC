@@ -220,7 +220,37 @@ function getProofPath($filename) {
                         <td class="px-4 py-2"><?= htmlspecialchars($row['package_title']) ?></td>
                         <td class="px-4 py-2"><?= htmlspecialchars($row['booking_date']) ?></td>
                         <td class="px-4 py-2"><?= htmlspecialchars($row['pax']) ?></td>
-                        <td class="px-4 py-2">₱ <?= number_format($row['total'], 2) ?></td>
+                       <td class="px-4 py-2">
+                    <?php
+                        $original_price = $row['package_price'];
+                        $pax = $row['pax'];
+                        $discount_rate = 0;
+
+                        if ($pax == 3) $discount_rate = 0.04;
+                        elseif ($pax == 5) $discount_rate = 0.10;
+                        elseif ($pax == 8) $discount_rate = 0.12;
+
+                        $discounted_price = $original_price - ($original_price * $discount_rate);
+                    ?>
+
+                        <?php if ($discount_rate > 0): ?>
+                            <div class="flex flex-col">
+                            <!-- Original Price with Stroke -->
+                            <span class="text-gray-400 line-through text-sm">
+                                ₱<?= number_format($original_price, 2) ?>
+                            </span>
+                            <!-- Discounted Price -->
+                            <span class="text-green-700 font-semibold text-lg">
+                                ₱<?= number_format($discounted_price, 2) ?>
+                            </span>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-gray-800 font-semibold text-lg">
+                            ₱<?= number_format($original_price, 2) ?>
+                            </span>
+                        <?php endif; ?>
+                        </td>
+
                         <td class="px-4 py-2 flex items-center space-x-2">
                             <?php 
                                 $statusColor = match(strtolower($row['status'])) {

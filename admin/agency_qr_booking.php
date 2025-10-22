@@ -308,9 +308,20 @@ body { font-family: 'Poppins', sans-serif; }
     <td class="px-4 py-3 border"><?= htmlspecialchars($row['pax'] ?? '0') ?> pax</td>
 
     <!-- Total -->
-    <td class="px-4 py-3 border">
-        ₱<?= number_format(($row['total'] ?? ($row['price'] ?? 0) * ($row['pax'] ?? 1)), 2) ?>
-    </td>
+            <?php
+        $original_total = $row['total'] ?? (($row['price'] ?? 0) * ($row['pax'] ?? 1));
+        $service_fee = 50 * ($row['pax'] ?? 1);
+        $total_with_fee = $original_total + $service_fee;
+        ?>
+        <td class="px-4 py-3 border text-center">
+            <span class="line-through text-gray-500 mr-1">
+                ₱<?= number_format($original_total, 2) ?>
+            </span>
+            <span class="text-green-700 font-semibold">
+                ₱<?= number_format($total_with_fee, 2) ?>
+            </span>
+            <small class="block text-xs text-gray-500">(with service fee)</small>
+        </td>
 
     <!-- Payment Proof -->
     <td class="px-4 py-3 border text-center">

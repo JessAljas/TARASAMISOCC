@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'config/db_connect.php'; // The database connection file
+include 'config/db_connect.php';
 
 // ✅ Allow only tourists
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourist') {
@@ -12,7 +12,7 @@ $tourist_id   = $_SESSION['user']['id'];
 $package_id   = $_POST['package_id'] ?? 0;
 $pax          = $_POST['pax'] ?? 1;
 $total        = $_POST['total'] ?? 0;
-$booking_date = $_POST['booking_date'] ?? date('Y-m-d'); // Default to today if none selected
+$booking_date = $_POST['booking_date'] ?? date('Y-m-d');
 
 // ✅ Default package info
 $package = [
@@ -24,16 +24,31 @@ $package = [
 ];
 
 // ✅ Get basic package details
-$stmt = $conn->prepare("SELECT title, pickup_location, dropoff_location FROM packages WHERE id = ?");
+$stmt = $conn->prepare("SELECT title, pickup_location, dropoff_location, price FROM packages WHERE id = ?");
 $stmt->bind_param("i", $package_id);
 $stmt->execute();
 $result = $stmt->get_result();
+$original_price = 0;
+
 if ($row = $result->fetch_assoc()) {
     $package['title'] = $row['title'];
     $package['pickup_location'] = $row['pickup_location'];
     $package['dropoff_location'] = $row['dropoff_location'];
+    $original_price = $row['price'];
 }
 $stmt->close();
+
+// ✅ Determine discount rate based on pax
+$discount_rate = 0;
+if ($pax == 3) $discount_rate = 0.4;
+elseif ($pax == 5) $discount_rate = 0.10;
+elseif ($pax == 8) $discount_rate = 0.12;
+
+$discounted_price = $original_price - ($original_price * $discount_rate);
+$you_save = $original_price * $discount_rate;
+
+// ✅ Compute GCash total (2.5% service fee)
+$gcash_total = $discounted_price + ($discounted_price * 0.025);
 
 // ✅ Get pickup time (earliest itinerary time)
 $stmt_pickup = $conn->prepare("SELECT time FROM itinerary WHERE package_id = ? ORDER BY time ASC LIMIT 1");
@@ -55,7 +70,7 @@ if ($row = $result_dropoff->fetch_assoc()) {
 }
 $stmt_dropoff->close();
 
-// ✅ Fetch full itinerary with time and activity
+// ✅ Fetch itinerary
 $itinerary = [];
 $stmt_itinerary = $conn->prepare("
     SELECT destination_name, time, activity_type 
@@ -70,18 +85,12 @@ $result_itinerary = $stmt_itinerary->get_result();
 while ($row = $result_itinerary->fetch_assoc()) {
     $itinerary[] = [
         'destination' => $row['destination_name'],
-        'time' => date("g:i A", strtotime($row['time'])), // Format time
+        'time' => date("g:i A", strtotime($row['time'])),
         'activity' => $row['activity_type']
     ];
 }
 $stmt_itinerary->close();
-
-
-
-// ✅ Compute GCash total with 2.5% service fee
-$gcash_total = $total + ($total * 0.025);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -91,10 +100,9 @@ $gcash_total = $total + ($total * 0.025);
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col font-[Poppins]">
 
+<body class="bg-gray-100 min-h-screen flex flex-col font-[Poppins]">
 <?php include 'config/include/header.php'; ?>
 
 <div class="flex-grow flex justify-center p-4">
@@ -109,38 +117,41 @@ $gcash_total = $total + ($total * 0.025);
           <div class="space-y-1.5">
             <p><span class="font-semibold">Package:</span> <?= htmlspecialchars($package['title']) ?></p>
             <p><span class="font-semibold">Number of Pax:</span> <?= htmlspecialchars($pax) ?></p>
-            <p class="text-base font-bold text-green-600">Amount: ₱<?= number_format($total, 2) ?></p>
+
+            <!-- ✅ Discount display -->
+            <div class="mt-2 space-y-1">
+              <p class="text-sm text-gray-500 line-through">Original Price: ₱<?= number_format($original_price, 2) ?></p>
+              <?php if ($discount_rate > 0): ?>
+                <p class="text-sm text-green-600 font-semibold">
+                  Discount (<?= $discount_rate * 100 ?>%): -₱<?= number_format($you_save, 2) ?>
+                </p>
+                <p class="text-xs text-green-700 italic">You saved ₱<?= number_format($you_save, 2) ?>!</p>
+              <?php endif; ?>
+              <p class="text-lg font-bold text-green-700">Discounted Price: ₱<?= number_format($discounted_price, 2) ?></p>
+            </div>
+
             <p><span class="font-semibold"><i class="fa-solid fa-calendar-days"></i> Booking Date:</span>
               <?= htmlspecialchars(date("F j, Y", strtotime($booking_date))) ?>
             </p>
           </div>
 
           <div class="space-y-1.5">
-            <p><span class="font-semibold"><i class="fa-solid fa-location-dot"></i> Pickup Location:</span>
-              <?= htmlspecialchars($package['pickup_location']) ?>
-            </p>
-            <p><span class="font-semibold"><i class="fa-solid fa-clock"></i> Pickup Time:</span>
-              <?= htmlspecialchars($package['pickup_time']) ?>
-            </p>
-            <p><span class="font-semibold"><i class="fa-solid fa-flag-checkered"></i> Drop-off Location:</span>
-              <?= htmlspecialchars($package['dropoff_location']) ?>
-            </p>
-            <p><span class="font-semibold"><i class="fa-solid fa-clock"></i> Drop-off Time:</span>
-              <?= htmlspecialchars($package['dropoff_time']) ?>
-            </p>
+            <p><span class="font-semibold"><i class="fa-solid fa-location-dot"></i> Pickup Location:</span> <?= htmlspecialchars($package['pickup_location']) ?></p>
+            <p><span class="font-semibold"><i class="fa-solid fa-clock"></i> Pickup Time:</span> <?= htmlspecialchars($package['pickup_time']) ?></p>
+            <p><span class="font-semibold"><i class="fa-solid fa-flag-checkered"></i> Drop-off Location:</span> <?= htmlspecialchars($package['dropoff_location']) ?></p>
+            <p><span class="font-semibold"><i class="fa-solid fa-clock"></i> Drop-off Time:</span> <?= htmlspecialchars($package['dropoff_time']) ?></p>
           </div>
         </div>
 
-        <!-- Button to open modal -->
         <div class="text-center mt-6">
           <button onclick="document.getElementById('itineraryModal').classList.remove('hidden')"
             class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
-            <i class="fa-solid fa-list"></i> View Your Itinerary Schedule Here
+            <i class="fa-solid fa-list"></i> View Your Itinerary Schedule
           </button>
         </div>
       </div>
 
-      <!-- Customer Details -->
+      <!-- CUSTOMER DETAILS -->
       <div class="border rounded-lg p-5 bg-gray-50">
         <h2 class="text-xl font-semibold mb-3">Customer Details</h2>
         <form id="bookingInfo" class="space-y-4">
@@ -157,23 +168,22 @@ $gcash_total = $total + ($total * 0.025);
             <input type="email" name="email" required class="w-full border rounded px-3 py-2">
           </div>
           <div>
-         <label class="block text-sm font-semibold">Phone Number</label>
-        <input type="text" name="phone" required maxlength="11" pattern="\d{11}" title="Please enter an 11-digit phone number" class="w-full border rounded px-3 py-2"
-          oninput="this.value = this.value.replace(/[^0-9]/g, '')"/>
+            <label class="block text-sm font-semibold">Phone Number</label>
+            <input type="text" name="phone" required maxlength="11" pattern="\d{11}" title="Please enter an 11-digit phone number" class="w-full border rounded px-3 py-2" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
           </div>
         </form>
       </div>
     </div>
 
-<!-- RIGHT SIDE: Payment ug Terms -->
-<div class="space-y-6">
-  <div class="border rounded-xl p-6 bg-gray-50 shadow-md hover:shadow-lg transition-all duration-300 h-[650px] flex flex-col justify-between">
+    <!-- RIGHT SIDE -->
+    <div class="flex flex-col lg:flex-row gap-6">
+      <div class="flex-1 border border rounded-xl p-6 bg-gray-50 shadow-md h-[650px] flex flex-col justify-between">
 
-    <!-- TERMS SECTION -->
+           <!-- TERMS SECTION -->
     <div class="overflow-y-auto pr-2">
       <h2 class="text-xl font-semibold mb-4 text-center text-gray-800">TERMS AND CONDITIONS:</h2>
       <h6 class="text-sm font-semibold mb-4 text-center text-gray-800">Read First:</h6>
-      <ul class="text-xs space-y-2 list-disc list-inside leading-relaxed">
+      <ul class="text-xs space-y-3 list-disc list-inside leading-relaxed">
         <li class="text-orange-900">
           <i class="fa-solid fa-circle-info text-orange-700 mr-1"></i>
           Booking may only be guaranteed once payment has been made.
@@ -219,110 +229,99 @@ $gcash_total = $total + ($total * 0.025);
       </ul>
     </div>
 
-    <!-- PAYMENT SECTION -->
-    <div class="mt-6 border-t pt-4">
-      <h2 class="text-xl font-semibold mb-4 text-center text-gray-800">Payment Options</h2>
+        <!-- PAYMENT -->
+        <div class="flex-1 border mt-6 border-t pt-4">
+          <h2 class="text-xl font-semibold mb-4 text-center text-gray-800">Payment Options</h2>
 
-      <!-- PayMongo -->
-      <form method="POST" action="paymongo_checkout.php" onsubmit="return copyBookingInfo(this)" class="mb-4">
-        <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
-        <input type="hidden" name="package_id" value="<?= $package_id ?>">
-        <input type="hidden" name="pax" value="<?= $pax ?>">
-        <input type="hidden" name="total" value="<?= $total ?>">
-        <input type="hidden" name="mode_of_payment" value="PayMongo">
-        <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
-        <input type="hidden" name="fullname">
-        <input type="hidden" name="address">
-        <input type="hidden" name="email">
-        <input type="hidden" name="phone">
-        <button type="submit"
-          class="flex items-center justify-center gap-2 w-full bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded font-medium text-sm transition">
-          <i class="fa-solid fa-credit-card"></i> Checkout Now
-        </button>
-      </form>
+          <!-- PayMongo -->
+          <form method="POST" action="paymongo_checkout.php" onsubmit="return copyBookingInfo(this)" class="mb-4">
+            <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
+            <input type="hidden" name="package_id" value="<?= $package_id ?>">
+            <input type="hidden" name="pax" value="<?= $pax ?>">
+            <input type="hidden" name="total" value="<?= $discounted_price ?>">
+            <input type="hidden" name="mode_of_payment" value="PayMongo">
+            <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
+            <input type="hidden" name="fullname">
+            <input type="hidden" name="address">
+            <input type="hidden" name="email">
+            <input type="hidden" name="phone">
+            <button type="submit"
+              class="w-full bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded font-medium text-sm transition">
+              <i class="fa-solid fa-credit-card"></i> Checkout Now
+            </button>
+          </form>
 
-      <!-- GCash -->
-      <form method="POST" action="gcash_payment.php" onsubmit="return copyBookingInfo(this)">
-        <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
-        <input type="hidden" name="package_id" value="<?= $package_id ?>">
-        <input type="hidden" name="pax" value="<?= $pax ?>">
-        <input type="hidden" name="total" value="<?= $gcash_total ?>">
-        <input type="hidden" name="mode_of_payment" value="GCash QR">
-        <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
-        <input type="hidden" name="fullname">
-        <input type="hidden" name="address">
-        <input type="hidden" name="email">
-        <input type="hidden" name="phone">
+          <!-- GCash -->
+          <form method="POST" action="gcash_payment.php" onsubmit="return copyBookingInfo(this)">
+            <input type="hidden" name="tourist_id" value="<?= $tourist_id ?>">
+            <input type="hidden" name="package_id" value="<?= $package_id ?>">
+            <input type="hidden" name="pax" value="<?= $pax ?>">
+            <input type="hidden" name="total" value="<?= $gcash_total ?>">
+            <input type="hidden" name="mode_of_payment" value="GCash QR">
+            <input type="hidden" name="booking_date" value="<?= htmlspecialchars($booking_date) ?>">
+            <input type="hidden" name="fullname">
+            <input type="hidden" name="address">
+            <input type="hidden" name="email">
+            <input type="hidden" name="phone">
 
-        <p class="text-sm font-bold text-green-800 text-center mb-2">
-          ₱<?= number_format($gcash_total,2) ?> (with service fee)
-        </p>
+            <p class="text-sm font-bold text-green-800 text-center mb-2">
+              ₱<?= number_format($gcash_total, 2) ?> (with service fee)
+            </p>
 
-        <div class="flex justify-between gap-2 mt-3">
-          <button type="submit"
-            class="flex items-center justify-center gap-1.5 w-1/2 bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded font-medium text-sm transition">
-            <i class="fa-solid fa-qrcode"></i> Pay via QR
-          </button>
+            <div class="flex justify-between gap-2 mt-3">
+              <button type="submit"
+                class="w-1/2 bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded font-medium text-sm transition">
+                <i class="fa-solid fa-qrcode"></i> Pay via QR
+              </button>
 
-          <a href="package.php"
-            class="flex items-center justify-center gap-1.5 w-1/2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded font-medium text-sm text-center transition">
-            <i class="fa-solid fa-xmark"></i> Cancel
-          </a>
+              <a href="package.php"
+                class="w-1/2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded font-medium text-sm text-center transition">
+                <i class="fa-solid fa-xmark"></i> Cancel
+              </a>
+            </div>
+          </form>
+
+          <div class="mt-4">
+            <p class="text-sm font-semibold mb-2">We Accept:</p>
+            <div class="flex items-center gap-3">
+              <img src="img/gcash.png" class="h-8">
+              <img src="img/maya.png" class="h-8">
+              <img src="img/bpi.png" class="h-8">
+            </div>
+          </div>
         </div>
-      </form>
-      <div class="mt-4"> <p class="text-sm font-semibold mb-2">We Accept:</p>
- <div class="flex items-center gap-3">
-     <img src="img/gcash.png" alt="GCash" class="h-8">
-      <img src="img/maya.png" alt="Maya" class="h-8"> 
-      <img src="img/bpi.png" alt="BPI" class="h-8">
-     </div>
-     </div>
+      </div>
     </div>
   </div>
 </div>
-</div>
-</div>
 
-<!-- ✅ ITINERARY MODAL -->
+<!-- ITINERARY MODAL -->
 <div id="itineraryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6 relative">
-    <button onclick="document.getElementById('itineraryModal').classList.add('hidden')"
-      class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+    <button onclick="document.getElementById('itineraryModal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
       <i class="fa-solid fa-xmark text-xl"></i>
     </button>
 
     <h2 class="text-2xl font-semibold mb-4 text-center">Your Itinerary Schedule</h2>
-
     <?php if (!empty($itinerary)): ?>
       <ul class="text-sm space-y-3 max-h-80 overflow-y-auto">
         <?php foreach ($itinerary as $item): ?>
           <li class="border-b pb-2">
             <div class="flex justify-between items-center">
               <span class="font-medium text-gray-800"><?= htmlspecialchars($item['destination']) ?></span>
-              <?php if (!empty($item['time'])): ?>
-                <span class="text-gray-600"><?= htmlspecialchars($item['time']) ?></span>
-              <?php endif; ?>
+              <span class="text-gray-600"><?= htmlspecialchars($item['time']) ?></span>
             </div>
-            <?php if (!empty($item['activity'])): ?>
-              <p class="text-xs text-gray-500 italic ml-1 mt-1">
-            <?= htmlspecialchars($item['activity']) ?>
-              </p>
-            <?php endif; ?>
+            <p class="text-xs text-gray-500 italic ml-1 mt-1"><?= htmlspecialchars($item['activity']) ?></p>
           </li>
         <?php endforeach; ?>
       </ul>
     <?php else: ?>
-      <p class="text-gray-500 text-center text-sm">No itinerary available for this package.</p>
+      <p class="text-gray-500 text-center text-sm">No itinerary available.</p>
     <?php endif; ?>
-
-    <p class="text-xs text-red-600 mt-5 text-center bg-yellow-50 italic p-2 rounded">
-      <i class="fa-solid fa-circle-info"></i> Please note: Itinerary times may be adjusted due to traffic, weather, or other unforeseen factors. Thank you for your understanding.
-    </p>
   </div>
 </div>
 
 <?php include 'config/include/footer.php'; ?>
-
 <script src="js/package.js"></script>
 </body>
 </html>

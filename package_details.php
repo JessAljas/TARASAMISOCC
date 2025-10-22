@@ -306,93 +306,122 @@ z-index: 1;
 
 <div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0">
   <!-- Booking Form -->
-  <form
-    id="bookingForm"
-    method="POST"
-    action="preview_booking.php"
-    class="flex-1 bg-white p-8 rounded-2xl shadow-lg border border-gray-100 sticky top-6 space-y-6"
-  >
-    <input type="hidden" name="package_id" value="<?= $package['id'] ?>" />
-    <input type="hidden" name="total" id="total_input" />
+<form action="preview_booking.php" method="POST" class="space-y-4">
 
-    <div class="border-b pb-3">
-      <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-        <i class="fa-solid fa-calendar-check text-green-500"></i>
-        Book Your Tour
-      </h2>
-      <p class="text-sm text-gray-500 mt-1">
-        Reserve your spot easily — confirm your booking below.
-      </p>
-    </div>
+  <div>
+    <label for="pax" class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
+      <i class="fa-solid fa-users text-green-600"></i> Select Number of Guests
+    </label>
+    <select
+      name="pax"
+      id="pax"
+      class="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-green-500 focus:ring-1 focus:ring-green-400 transition"
+      required
+    >
+      <option value="1">Solo (1 Pax)</option>
+      <option value="3">3 Pax</option>
+      <option value="5">5 Pax</option>
+      <option value="8">8 Pax</option>
+    </select>
+  </div>
 
-    <div class="flex items-center justify-between bg-gray-50 px-4 py-2 rounded-lg">
-      <span class="text-gray-700 font-medium">Price per Pax:</span>
-      <span class="text-green-600 text-xl font-semibold" id="price">
-        ₱<?= number_format($package['price'], 2) ?>
-      </span>
-    </div>
-
-    <div>
-     <label for="pax" class="font-semibold text-gray-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-users text-green-600"></i> Select Number of Guests</label>
-        <select
-        name="pax"
-        id="pax"
-        class="border border-gray-300 rounded-lg px-3 py-2 w-full focus:border-green-500 focus:ring-1 focus:ring-green-400 transition"
-      >
-        <option value="1">Solo (1 Pax)</option>
-        <option value="3">3 Pax</option>
-        <option value="5">5 Pax</option>
-        <option value="8">8 Pax</option>
-      </select>
-    </div>
-
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
-      <p class="text-yellow-700 text-sm font-medium">
-        🌟 Don’t miss out! Secure your booking early to guarantee your spot for tomorrow’s tour.
-      </p>
-    </div>
-
-    <p class="text-red-600 text-sm text-center">
-      <span class="inline-block w-3 h-3 bg-red-500 mr-1 rounded-full align-middle"></span>
-      <em>Dates highlighted in red are</em> <strong>unavailable</strong> <em>for booking.</em>
+  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+    <p class="text-yellow-700 text-sm font-medium">
+      🌟 Don’t miss out! Secure your booking early to guarantee your spot for tomorrow’s tour.
     </p>
+  </div>
 
-    <div>
-      <label for="booking_date" class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-        <i class="fas fa-calendar-alt text-green-600"></i> Select Tour Date
-      </label>
-      <input
-        type="text"
-        name="booking_date"
-        id="booking_date"
-        class="border-2 border-green-500 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-300"
-        placeholder="Choose a date"
-        required
-      />
-    </div>
+  <p class="text-red-600 text-sm text-center">
+    <span class="inline-block w-3 h-3 bg-red-500 mr-1 rounded-full align-middle"></span>
+    <em>Dates highlighted in red are</em> <strong>unavailable</strong> <em>for booking.</em>
+  </p>
 
-    <div class="text-center">
-      <p class="font-semibold text-gray-700">Total Amount</p>
-      <p id="total" class="text-2xl font-bold text-green-700 mt-1 underline">
-        ₱<?= number_format($package['price'], 2) ?>
-      </p>
-    </div>
+  <div>
+    <label for="booking_date" class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+      <i class="fas fa-calendar-alt text-green-600"></i> Select Tour Date
+    </label>
+    <input
+      type="text"
+      name="booking_date"
+      id="booking_date"
+      class="border-2 border-green-500 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-300"
+      placeholder="Choose a date"
+      required
+    />
+  </div>
 
-    <div class="flex justify-center gap-4 pt-2">
-      <button
-        type="submit"
-        class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
-      >
-        <i class="fa-solid fa-check-circle"></i> Confirm Booking
-      </button>
-      <a
-        href="package.php"
-        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
-      >
-        <i class="fa-solid fa-xmark"></i> Cancel
-      </a>
-    </div>
-  </form>
+  <div class="text-center">
+    <p class="font-semibold text-gray-700">Total Amount</p>
+    <p id="originalPrice" class="text-sm text-gray-500 line-through hidden"></p>
+    <p id="total" class="text-2xl font-bold text-green-700 mt-1 underline">
+      ₱<?= number_format($package['price'], 2) ?>
+    </p>
+    <p id="discountNote" class="text-green-600 text-sm font-medium mt-1 hidden"></p>
+
+    <!-- Hidden inputs for backend -->
+    <input type="hidden" name="package_id" value="<?= $package['id'] ?>">
+    <input type="hidden" id="final_price" name="final_price" value="<?= $package['price'] ?>">
+  </div>
+
+  <div class="flex justify-center gap-4 pt-2">
+    <button
+      type="submit"
+      class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
+    >
+      <i class="fa-solid fa-check-circle"></i> Confirm Booking
+    </button>
+
+    <a
+      href="package.php"
+      class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition"
+    >
+      <i class="fa-solid fa-xmark"></i> Cancel
+    </a>
+  </div>
+
+</form>
+
+<script>
+  // Base price from PHP
+  const basePrice = <?= $package['price'] ?>;
+
+  const paxSelect = document.getElementById("pax");
+  const totalDisplay = document.getElementById("total");
+  const discountNote = document.getElementById("discountNote");
+  const originalPrice = document.getElementById("originalPrice");
+  const finalPriceInput = document.getElementById("final_price");
+
+  paxSelect.addEventListener("change", () => {
+    const pax = parseInt(paxSelect.value);
+    let discount = 0;
+
+    // Apply discount based on number of guests
+    if (pax === 3) discount = 0.4; // 
+    else if (pax === 5) discount = 0.10; 
+    else if (pax === 8) discount = 0.12; 
+    else discount = 0;
+
+    const discountedPrice = basePrice - basePrice * discount;
+
+    // Update UI
+    if (discount > 0) {
+      originalPrice.textContent = "₱" + basePrice.toLocaleString(undefined, { minimumFractionDigits: 2 });
+      originalPrice.classList.remove("hidden");
+
+      totalDisplay.textContent = "₱" + discountedPrice.toLocaleString(undefined, { minimumFractionDigits: 2 });
+      discountNote.textContent = `You saved ${discount * 100}% for booking ${pax} guests!`;
+      discountNote.classList.remove("hidden");
+    } else {
+      originalPrice.classList.add("hidden");
+      discountNote.classList.add("hidden");
+      totalDisplay.textContent = "₱" + basePrice.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    }
+
+    // Update hidden input (for sending to PHP)
+    finalPriceInput.value = discountedPrice.toFixed(2);
+  });
+</script>
+
 
   <!-- Reviews Card -->
  <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border border-gray-100 mt-20 md:mt-28">
