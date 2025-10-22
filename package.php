@@ -69,7 +69,10 @@ if ($res && $res->num_rows > 0) {
     <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
         Explore Our Tour Packages
     </h1>
-    <p class="text-gray-500 mt-2">Find the best deals and experiences here in our Tour Packages</p>
+  <p class="text-4xl font-bold text-green-800" style="font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;">
+  Book your tour now and get exciting discounts for group bookings!
+</p>
+
 </div>
 
 <main class="mx-auto p-6 flex-1 max-w-8xl">

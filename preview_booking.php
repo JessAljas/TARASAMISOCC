@@ -140,6 +140,9 @@ $stmt_itinerary->close();
             <p><span class="font-semibold"><i class="fa-solid fa-clock"></i> Pickup Time:</span> <?= htmlspecialchars($package['pickup_time']) ?></p>
             <p><span class="font-semibold"><i class="fa-solid fa-flag-checkered"></i> Drop-off Location:</span> <?= htmlspecialchars($package['dropoff_location']) ?></p>
             <p><span class="font-semibold"><i class="fa-solid fa-clock"></i> Drop-off Time:</span> <?= htmlspecialchars($package['dropoff_time']) ?></p>
+             <p class="text-red-600 text-xs italic leading-snug">
+            <strong>Note:</strong> Pickup and drop-off times may vary depending on traffic conditions or unforeseen circumstances. We appreciate your understanding and flexibility.
+            </p>
           </div>
         </div>
 
@@ -181,8 +184,8 @@ $stmt_itinerary->close();
 
            <!-- TERMS SECTION -->
     <div class="overflow-y-auto pr-2">
-      <h2 class="text-xl font-semibold mb-4 text-center text-gray-800">TERMS AND CONDITIONS:</h2>
-      <h6 class="text-sm font-semibold mb-4 text-center text-gray-800">Read First:</h6>
+      <h2 class="text-sm font-semibold mb-4 text-center text-red-800">You Must Read First the:</h2>
+      <h4 class="text-xl font-semibold mb-4 text-center text-gray-800">TERMS AND CONDITIONS:</h4>
       <ul class="text-xs space-y-3 list-disc list-inside leading-relaxed">
         <li class="text-orange-900">
           <i class="fa-solid fa-circle-info text-orange-700 mr-1"></i>
@@ -264,9 +267,13 @@ $stmt_itinerary->close();
             <input type="hidden" name="email">
             <input type="hidden" name="phone">
 
-            <p class="text-sm font-bold text-green-800 text-center mb-2">
-              ₱<?= number_format($gcash_total, 2) ?> (with service fee)
+          <div class="text-center my-3">
+            <p class="text-sm text-green-800 font-semibold mb-1">Amount to Pay</p>
+            <p class="text-3xl font-extrabold text-green-900">
+              ₱<?= number_format($gcash_total, 2) ?>
             </p>
+            <p class="text-xs text-gray-600 mt-1">(with service fee)</p>
+          </div>
 
             <div class="flex justify-between gap-2 mt-3">
               <button type="submit"
@@ -298,13 +305,15 @@ $stmt_itinerary->close();
 <!-- ITINERARY MODAL -->
 <div id="itineraryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-6 relative">
+    <!-- Close Button -->
     <button onclick="document.getElementById('itineraryModal').classList.add('hidden')" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
       <i class="fa-solid fa-xmark text-xl"></i>
     </button>
-
     <h2 class="text-2xl font-semibold mb-4 text-center">Your Itinerary Schedule</h2>
+
+    <!-- Itinerary List -->
     <?php if (!empty($itinerary)): ?>
-      <ul class="text-sm space-y-3 max-h-80 overflow-y-auto">
+      <ul class="text-sm space-y-3 max-h-80 overflow-y-auto mb-4">
         <?php foreach ($itinerary as $item): ?>
           <li class="border-b pb-2">
             <div class="flex justify-between items-center">
@@ -316,10 +325,19 @@ $stmt_itinerary->close();
         <?php endforeach; ?>
       </ul>
     <?php else: ?>
-      <p class="text-gray-500 text-center text-sm">No itinerary available.</p>
+      <p class="text-gray-500 text-center text-sm mb-4">No itinerary available.</p>
     <?php endif; ?>
+
+    <!-- Reminder Note -->
+    <div class="flex items-start bg-red-50 border-l-4 border-red-500 p-3 rounded">
+      <i class="fa-solid fa-circle-exclamation text-red-600 text-lg mr-2 mt-0.5"></i>
+      <p class="text-red-600 text-sm leading-snug">
+        <strong>Note:</strong> The itinerary schedule is flexible and may be adjusted due to traffic, weather conditions, or other unforeseen circumstances.
+      </p>
+    </div>
   </div>
 </div>
+
 
 <?php include 'config/include/footer.php'; ?>
 <script src="js/package.js"></script>

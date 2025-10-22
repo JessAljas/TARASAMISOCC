@@ -368,7 +368,7 @@ z-index: 1;
     </button>
 
     <a href="package.php"
-      class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition">
+      class="bg-red-500 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg font-medium text-sm flex items-center gap-2 shadow transition">
       <i class="fa-solid fa-xmark"></i> Cancel
     </a>
   </div>
