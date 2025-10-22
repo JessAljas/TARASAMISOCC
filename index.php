@@ -121,6 +121,10 @@
         </ul>
       </li>
       <li><i class="fa-solid fa-circle-info"></i> Travel organizer / Management is not responsible for accidents, lost or damaged items, or valuables left behind.</li>
+       <li class="text-orange-900">
+          <i class="fa-solid fa-circle-info text-orange-700 mr-1"></i>
+          Partial payments or credit arrangements are not accepted. Full payment is required to secure your booking. No full payment, no tour.
+        </li>
       <li class="text-red-600 font-semibold"><i class="fa-solid fa-circle-info"></i> NO payment, NO reservation.</li>
       <li class="text-red-600 font-semibold"><i class="fa-solid fa-circle-info"></i> All payments are NON-REFUNDABLE.</li>
       <li><i class="fa-solid fa-circle-info"></i> By using our platform, means you agree with our Terms & Conditions. We do <strong>NOT</strong> offer refunds under any circumstances.</li>
