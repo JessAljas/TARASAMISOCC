@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/db_connect.php';
+include 'tourism_header.php';
 
 // Restrict access
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourism_officers') {
@@ -37,36 +38,6 @@ if ($result && $result->num_rows > 0) {
 </head>
 <body class="bg-blue-50 min-h-screen flex flex-col font-[Poppins]">
 
-<!-- Navbar / Header -->
-<header class="bg-green-500 text-white shadow p-4 flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Tourism Staff Dashboard</h1>
-    <button onclick="openModal('logoutModal')" class="bg-green-500 hover:bg-green-500 px-4 py-2 rounded flex items-center gap-2 transition">
-        <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
-</header>
-
-<!-- Logout Confirmation Modal -->
-<div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-center items-center">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md text-center">
-        <h2 class="text-lg font-semibold mb-4 text-red-600">Confirm Logout</h2>
-        <p class="mb-6">Are you sure you want to logout?</p>
-        <div class="flex justify-center gap-4">
-            <button onclick="closeModal('logoutModal')" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-            <a href="../config/logout.php" class="px-4 py-2 bg-red-500 text-white rounded">Logout</a>
-        </div>
-    </div>
-</div>
-
-<script>
-function openModal(id) {
-    document.getElementById(id).classList.remove('hidden');
-    document.body.classList.add('overflow-hidden');
-}
-function closeModal(id) {
-    document.getElementById(id).classList.add('hidden');
-    document.body.classList.remove('overflow-hidden');
-}
-</script>
 
 <!-- Welcome Card -->
 <div class="flex flex-1 justify-center items-center mt-10">

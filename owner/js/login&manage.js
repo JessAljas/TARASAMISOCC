@@ -107,18 +107,16 @@ function closeModal() {
   modal.classList.add("hidden");
 }
 
-// Delete Modal Functions
-function openDeleteModal(id, name) {
-  const modal = document.getElementById("deleteModal");
-  const text = document.getElementById("deleteModalText");
-  const confirmBtn = document.getElementById("confirmDeleteBtn");
+const deleteModal = document.getElementById("deleteModal");
+const deleteSpotName = document.getElementById("deleteSpotName");
+const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 
-  text.innerHTML = `Are you sure you want to delete <strong>${name}</strong>?`;
-  confirmBtn.href = `?delete=${id}&page=${window.currentPage || 1}`;
-
-  modal.classList.remove("hidden");
+function openDeleteModal(spotId, spotName) {
+  deleteSpotName.textContent = spotName;
+  confirmDeleteBtn.href = "?delete=" + spotId;
+  deleteModal.classList.remove("hidden");
 }
 
 function closeDeleteModal() {
-  document.getElementById("deleteModal").classList.add("hidden");
+  deleteModal.classList.add("hidden");
 }

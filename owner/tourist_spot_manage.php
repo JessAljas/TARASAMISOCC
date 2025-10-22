@@ -131,15 +131,8 @@ $stmt->close();
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen font-[Poppins]">
-
-<header class="bg-green-500 text-white p-8 shadow flex justify-center">
-    <h1 class="text-2xl font-bold flex items-center gap-2">
-        <i class="fas fa-map-marker-alt"></i> My Tourist Spots
-    </h1>
-</header>
-
+ <?php include 'owner_header.php'; ?>
 <main class="p-6">
-
     <!-- Success Message -->
     <?php if(isset($_GET['updated']) && $_GET['updated'] == 1): ?>
         <div id="successMsg" class="text-green-800 text-center font-bold">
@@ -154,10 +147,14 @@ $stmt->close();
         </div>
     <?php endif; ?>
 
-    <!-- Table List -->
-  <!-- Table List -->
-<table class="w-full bg-white rounded shadow overflow-hidden border-collapse">
-    <thead class="bg-gray-300 text-black">
+
+<!-- Table List -->
+<div class="overflow-x-auto mx-4 md:mx-12 lg:mx-24">
+    <div class="mb-4 flex justify-end">
+    <input type="text" id="searchInput" placeholder="🔍 Search spots..." class="p-2 border rounded w-64"onkeyup="filterTable()">
+</div>
+    <table class="w-full bg-white rounded shadow overflow-hidden border-collapse" id="spotsTable">
+        <thead class="bg-gray-300 text-black">
         <tr>
             <th class="px-4 py-2 text-left">Name</th>
             <th class="px-4 py-2 text-left">Entrance Fee</th>
@@ -173,7 +170,7 @@ $stmt->close();
             <td class="px-4 py-3 align-middle">₱<?= number_format((float)$spot['entrance_fee'], 2) ?></td>
             <td class="px-4 py-3 align-middle">
                 <?php if(!empty($spot['location'])): ?>
-                    <div class="text-gray-600 text-sm mt-1"> <?= htmlspecialchars($spot['location']) ?></div>
+                    <div class="text-gray-600 text-sm mt-1"><?= htmlspecialchars($spot['location']) ?></div>
                 <?php endif; ?>
             </td>
             <td class="px-4 py-3 align-middle">
@@ -193,7 +190,6 @@ $stmt->close();
                     <i class="fas fa-edit"></i>
                 </button>
 
-                <!-- Delete Button -->
                 <button 
                     onclick="openDeleteModal(<?= $spot['id'] ?>, '<?= htmlspecialchars(addslashes($spot['name_of_tourist_spot'])) ?>')" 
                     class="bg-red-500 text-white px-2 py-1 rounded flex items-center gap-1">
@@ -204,7 +200,26 @@ $stmt->close();
     <?php endforeach; ?>
     </tbody>
 </table>
+</div>
+<script>
+function filterTable() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const table = document.getElementById("spotsTable");
+    const rows = table.getElementsByTagName("tr");
 
+    for (let i = 1; i < rows.length; i++) { // skip header row
+        let cells = rows[i].getElementsByTagName("td");
+        let match = false;
+        for (let j = 0; j < cells.length; j++) {
+            if (cells[j].textContent.toLowerCase().includes(input)) {
+                match = true;
+                break;
+            }
+        }
+        rows[i].style.display = match ? "" : "none";
+    }
+}
+</script>
 
     <!-- Pagination -->
     <div class="flex justify-center mt-4 gap-2" role="navigation" aria-label="Pagination">
@@ -219,11 +234,19 @@ $stmt->close();
         <?php endif; ?>
     </div>
 
-    <div class="text-center my-4">
-        <a href="tourist_spot_owner_dashboard.php" class="underline text-blue-600 hover:text-blue-800">Back to Dashboard</a>
-    </div>
-
 </main>
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center" role="dialog" aria-modal="true">
+    <div class="bg-white p-6 rounded w-[95%] max-w-md mx-auto text-center relative">
+        <button onclick="closeDeleteModal()" class="absolute top-2 right-2 text-gray-600"><i class="fas fa-times"></i></button>
+        <h2 class="text-lg font-semibold mb-4 text-red-600">Confirm Delete</h2>
+        <p class="mb-4">Are you sure you want to delete <span id="deleteSpotName" class="font-bold"></span>?</p>
+        <div class="flex justify-center gap-4">
+            <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+            <a href="#" id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</a>
+        </div>
+    </div>
+</div>
 
 <!-- Edit Modal -->
 <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -270,9 +293,9 @@ $stmt->close();
                     <i class="fas fa-save"></i> Update
                 </button>
 
-                <button type="button" onclick="window.history.back()" class="bg-gray-300 text-black w-24 py-1 rounded text-sm hover:bg-red-400 flex items-center justify-center gap-1" aria-label="Cancel">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
+              <button type="button" onclick="window.location.href='tourist_spot_manage.php'" class="bg-gray-300 text-black w-24 py-1 rounded text-sm hover:bg-red-400 flex items-center justify-center gap-1" aria-label="Cancel">
+             <i class="fas fa-times"></i> Cancel
+             </button>
             </div>
         </form>
     </div>
@@ -290,5 +313,22 @@ $stmt->close();
     window.currentPage = <?= $page ?>;
 </script>
 <script src="js/login&manage.js"></script>
+
+<script>
+const deleteModal = document.getElementById('deleteModal');
+const deleteSpotName = document.getElementById('deleteSpotName');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+function openDeleteModal(spotId, spotName) {
+    deleteSpotName.textContent = spotName;
+    confirmDeleteBtn.href = "?delete=" + spotId;
+    deleteModal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    deleteModal.classList.add('hidden');
+}
+</script>
+
 </body>
 </html>

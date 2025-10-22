@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/db_connect.php';
+include 'tourism_header.php';
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourism_officers') {
     header("Location: login.php");
@@ -156,10 +157,23 @@ $conn->close();
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 <body class="bg-gray-100 p- font-[Poppins]">
+<?php
+$total_spots = count($spots); 
+?>
 
-<div class="max-w-6xl mx-auto bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg shadow p-6 mb-6">
-    <h1 class="text-2xl font-bold text-white text-center">Manage Your Tourist Spots</h1>
+<div class="max-w-md w-full mx-auto bg-gradient-to-r from-green-500 to-yellow-400 rounded-lg shadow p-6 mb-6 mt-5 flex items-center gap-4">
+    <!-- Icon on the left -->
+    <div class="text-white text-5xl p-4 bg-green-600 rounded-full shadow-lg flex items-center justify-center">
+        <i class="fas fa-compass"></i>
+    </div>
+    <div class="flex flex-col">
+        <h1 class="text-xl sm:text-2xl font-bold text-white mb-1">Manage Your Tourist Spots</h1>
+        <p class="text-white text-base sm:text-lg">
+            Total Spots: <span class="font-bold text-lg sm:text-xl"><?= $total_spots ?></span>
+        </p>
+    </div>
 </div>
+
 
 <?php if($message): ?>
 <div id="messageBox" class="text-green-700 text-center">
@@ -167,14 +181,6 @@ $conn->close();
 </div>
 <?php endif; ?>
 
-<div class="mb-4 flex items-center gap-2 mx-2">
-    <label for="searchInput" class="font-medium text-gray-700">Search:</label>
-    <div class="relative">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search spots..." 
-               class="w-64 p-3 pl-10 border rounded shadow focus:outline-none focus:ring focus:border-green-400">
-    </div>
-</div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
@@ -192,33 +198,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-<div class="overflow-x-auto mx-2">
-    <table class="min-w-full border-collapse">
+<div class="overflow-x-auto mx-4 md:mx-8 lg:mx-16">
+    <div class="mb-4 flex items-center gap-2 mx-2">
+    <label for="searchInput" class="font-medium text-gray-700">Search:</label>
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search spots..." 
+               class="w-64 p-3 pl-10 border rounded shadow focus:outline-none focus:ring focus:border-green-400">
+    </div>
+</div>
+    <table class="min-w-full border-collapse mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
         <thead>
-            <tr class="bg-green-400 text-white">
-                <th class="p-2 border">Spot Name</th>
-                <th class="p-2 border">Owner Name</th>
-                <th class="p-2 border">Location</th>
-                <th class="p-2 border">Entrance Fee</th>
-                <th class="p-2 border">Status</th>
-                <th class="p-2 border">Actions</th>
+            <tr class="bg-green-400 text-white text-left">
+                <th class="p-3 border-b">Spot Name</th>
+                <th class="p-3 border-b">Owner Name</th>
+                <th class="p-3 border-b">Location</th>
+                <th class="p-3 border-b">Entrance Fee</th>
+                <th class="p-3 border-b">Status</th>
+                <th class="p-3 border-b">Actions</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach($spots as $spot): ?>
-            <tr class="border-b hover:bg-gray-50">
-                <td class="p-2 border"><?= htmlspecialchars($spot['name_of_tourist_spot']) ?></td>
-                <td class="p-2 border"><?= htmlspecialchars($spot['owner_name']) ?></td>
-                <td class="p-2 border"><?= htmlspecialchars($spot['location']) ?></td>
-                <td class="p-2 border">₱<?= number_format($spot['entrance_fee'], 2) ?></td>
-                <td class="p-2 border">
+            <tr class="border-b hover:bg-gray-50 transition-colors">
+                <td class="p-3"><?= htmlspecialchars($spot['name_of_tourist_spot']) ?></td>
+                <td class="p-3"><?= htmlspecialchars($spot['owner_name']) ?></td>
+                <td class="p-3"><?= htmlspecialchars($spot['location']) ?></td>
+                <td class="p-3">₱<?= number_format($spot['entrance_fee'], 2) ?></td>
+                <td class="p-3">
                     <?php 
                     $status = strtolower($spot['status']);
                     $color = $status === 'approved' ? 'green' : ($status === 'pending' ? 'yellow' : 'green');
                     ?>
                     <span class="px-2 py-1 rounded text-white bg-<?= $color ?>-500"><?= ucfirst($spot['status']) ?></span>
                 </td>
-                <td class="p-2 border flex gap-2">
+                <td class="p-3 flex gap-2">
                     <button class="editBtn px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1"
                         data-spot='<?= json_encode($spot, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
                         <i class="fas fa-edit"></i> Edit
@@ -233,7 +247,9 @@ document.addEventListener('DOMContentLoaded', () => {
         </tbody>
     </table>
 </div>
-<!-- Replace your current button div with this -->
+
+
+
 <div class="md:col-span-2 flex justify-end mt-4">
 <a href="tourism_add_spots.php" 
    class="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 text-white text-3xl font-bold flex items-center justify-center shadow-lg transition-shadow hover:shadow-2xl z-50">
@@ -255,11 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <div class="mt-4 flex justify-center gap-2" id="pagination"></div>
 
-<div class="w-full flex justify-center mt-4">
-    <a href="manage_request.php" class="text-blue-600 underline hover:text-blue-800 flex items-center gap-2">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
-    </a>
-</div>
 
 <!-- Edit Modal -->
 <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">

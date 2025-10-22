@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../config/db_connect.php';
+include 'tourism_header.php';
 
 // Only tourism officers are allowed
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourism_officers') {
@@ -84,6 +85,7 @@ $stmt->close();
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Tourism Officer Profile | Tara sa Mis.Occ</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col font-[Poppins]">
@@ -129,9 +131,10 @@ $stmt->close();
                 <label class="block font-medium mb-1">Full Name</label>
                 <input type="text" name="fullname" value="<?= htmlspecialchars($officer['fullname']) ?>" class="w-full border border-gray-300 rounded px-3 py-2" required>
             </div>
-            <div>
-                <label class="block font-medium mb-1">Phone Number</label>
-                <input type="text" name="phone" value="<?= htmlspecialchars($officer['phone'] ?? '') ?>" class="w-full border border-gray-300 rounded px-3 py-2">
+           <div class="mb-4"><label class="block text-gray-700 font-medium mb-1">Phone Number</label>
+                <input type="text" name="phone" value="<?= htmlspecialchars($officer['phone'] ?? '') ?>" 
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" maxlength="11"pattern="\d{11}"title="Phone number must be exactly 11 digits"oninput="this.value = this.value.replace(/\D/g,'').slice(0,11)"
+                 placeholder="Enter 11-digit phone number">
             </div>
             <div>
                 <label class="block font-medium mb-1">Email</label>

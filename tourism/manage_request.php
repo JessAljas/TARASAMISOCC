@@ -217,22 +217,26 @@ $totalPages = ceil($totalSpots / $limit);
 </div>
 
 
-<!-- Filter -->
-<div class="mb-4">
-<form method="GET" class="flex items-center space-x-2">
+<!-- Filter + Search -->
+<div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between space-y-2 md:space-y-0">
+  <!-- Filter -->
+  <form method="GET" class="flex items-center space-x-2">
     <label class="font-semibold">Filter by Status:</label>
     <select name="status" class="border rounded px-2 py-1" onchange="this.form.submit()">
-        <option value="all" <?= $filter_status==='all'?'selected':'' ?>>All</option>
-        <option value="pending" <?= $filter_status==='pending'?'selected':'' ?>>Pending</option>
-        <option value="verified" <?= $filter_status==='verified'?'selected':'' ?>>Verified</option>
-        <option value="rejected" <?= $filter_status==='rejected'?'selected':'' ?>>Rejected</option>
+      <option value="all" <?= $filter_status==='all'?'selected':'' ?>>All</option>
+      <option value="pending" <?= $filter_status==='pending'?'selected':'' ?>>Pending</option>
+      <option value="verified" <?= $filter_status==='verified'?'selected':'' ?>>Verified</option>
+      <option value="rejected" <?= $filter_status==='rejected'?'selected':'' ?>>Rejected</option>
     </select>
-</form>
+  </form>
+
+  <!-- Search -->
+  <div> <input type="text" id="spotSearch" placeholder="🔍 Search spots..." class="p-2 border rounded w-64"/></div>
 </div>
 
 <!-- Spots Table -->
 <div class="overflow-x-auto">
-<table class="min-w-full bg-white shadow rounded-lg">
+<table class="min-w-full bg-white shadow rounded-lg" id="spotsTable">
 <thead class="bg-yellow-600 text-black">
 <tr>
     <th class="py-2 px-4 text-left">#</th>
@@ -305,6 +309,22 @@ $totalPages = ceil($totalSpots / $limit);
 </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 md:w-1/3 lg:w-1/4 relative">
+    <button onclick="closeConfirmModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
+        <i class="fas fa-times"></i>
+    </button>
+    <h2 class="text-xl font-bold mb-4" id="confirmTitle">Confirm Action</h2>
+    <p class="mb-6" id="confirmMessage">Are you sure you want to perform this action?</p>
+    <div class="flex justify-end space-x-3">
+      <button onclick="closeConfirmModal()" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Cancel</button>
+      <button id="confirmYesBtn" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Yes</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- Messages Modal -->
 <div id="messageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
   <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 md:w-1/2 lg:w-1/3 relative modal-content">
@@ -364,11 +384,10 @@ $totalPages = ceil($totalSpots / $limit);
     <p class="text-sm mt-2">© 2025 Tara sa Mis.Occ. All rights reserved.</p>
   </div>
 </footer>
-
 <script id="spotsData" type="application/json"><?= json_encode($spots) ?></script>
 <span id="userId" class="hidden"><?= $_SESSION['user']['id'] ?></span>
+<script src="js/tourism_dashboard.js"></script>
 
-<script src="js/main.js"></script>
 
 </body>
 </html>

@@ -186,101 +186,7 @@ $conn->close();
     }
   </style>
 <body class="bg-white-300 font-[Poppins] min-h-screen flex flex-col">
-
-<!-- ========================== HEADER ========================== -->
-<header class="bg-green-500 text-white shadow p-6 flex justify-between items-center">
-    <h1 class="text-2xl font-bold">Tourist Spot Owner Dashboard</h1>
-    <div class="relative">
-        <button onclick="toggleProfileDropdown()" class="flex items-center space-x-2 bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700 transition">
-            <i class="fas fa-user-circle text-2xl"></i>
-            <span class="font-semibold"><?= htmlspecialchars($owner['fullname'] ?? 'Owner') ?></span>
-            <i class="fas fa-caret-down"></i>
-        </button>
-        <div id="profileDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg overflow-hidden hidden z-50">
-            <a href="javascript:void(0);" onclick="openModal('editModal')" class="block px-5 py-3 font-semibold text-green-700 hover:bg-green-100 transition">
-                <i class="fas fa-user-edit mr-2 text-green-600"></i> Profile
-            </a>
-            <a href="javascript:void(0);" onclick="openModal('messageModal')" class="block px-5 py-3 font-semibold text-green-700 hover:bg-green-100 transition">
-                <i class="fas fa-envelope mr-2 text-green-600"></i> Send Inquiry
-            </a>
-            <a href="javascript:void(0);" onclick="openModal('logoutModal')" class="block px-5 py-3 font-semibold text-red-600 hover:bg-red-100 transition">
-                <i class="fas fa-sign-out-alt mr-2 text-red-500"></i> Logout
-            </a>
-        </div>
-    </div>
-</header>
-<!-- Edit Profile Modal -->
-<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-96">
-        <h2 class="text-lg font-bold mb-4 text-center">Edit Profile</h2>
-
-        <!-- Profile Picture Centered -->
-        <div class="flex justify-center mb-4">
-            <img src="<?= $profile_img ?>" alt="Profile Picture" class="w-24 h-24 rounded-full object-cover border-2 border-green-500">
-        </div>
-        <form method="POST" enctype="multipart/form-data" class="space-y-3">
-            <input type="text" name="fullname" value="<?= htmlspecialchars($owner['fullname'] ?? '') ?>" class="w-full p-2 border rounded" placeholder="Full Name" required>
-            <input type="email" name="email" value="<?= htmlspecialchars($owner['email'] ?? '') ?>" class="w-full p-2 border rounded" placeholder="Email" required>
-            <input type="text" name="phone_number" value="<?= htmlspecialchars($owner['phone_number'] ?? '') ?>" class="w-full p-2 border rounded" placeholder="Phone Number" required>
-            <input type="file" name="profile_image" class="w-full border p-2 rounded">
-
-            <div class="flex justify-end gap-2 mt-4">
-                <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                <button type="submit" name="update_profile" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Update</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Send Inquiry Modal -->
-<div id="messageModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-center items-center">
-    <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md">
-        <h2 class="text-lg font-semibold mb-4 text-green-600">Send Inquiry</h2>
-        <form method="POST" class="space-y-4">
-            <input type="hidden" name="send_inquiry" value="1">
-            <input type="hidden" name="receiver_role" value="agency"> <!-- Automatically set to agency -->
-            
-            <div>
-                <label>Email:</label>
-                <input type="text" name="subject" required class="w-full p-2 border rounded">
-            </div>
-            <div>
-                <label>Message</label>
-                <textarea name="message" required class="w-full p-2 border rounded"></textarea>
-            </div>
-            
-            <div class="flex justify-end space-x-2">
-                <button type="button" onclick="closeModal('messageModal')" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded flex items-center gap-2">
-                    <i class="fa-solid fa-paper-plane"></i> Send
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-<!-- Logout Modal -->
-<div id="logoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-80 text-center">
-        <h2 class="text-lg font-bold mb-4">Confirm Logout</h2>
-        <p class="mb-6">Are you sure you want to logout?</p>
-        <div class="flex justify-center gap-4">
-            <button onclick="closeModal('logoutModal')" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-            <a href="../config/logout.php" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Logout</a>
-        </div>
-    </div>
-</div>
-
-<!-- ========================== MESSAGE NOTIFICATIONS ========================== -->
-<div id="modalMessageContainer" class="w-full flex justify-center mb-4 absolute top-4 left-0 z-50 flex-col items-center gap-2">
-    <?php if($profile_update_msg): ?>
-        <p class="bg-green-100 text-green-700 px-4 py-2 rounded shadow"><?= htmlspecialchars($profile_update_msg) ?></p>
-    <?php endif; ?>
-    <?php if($inquiry_msg): ?>
-        <p class="bg-green-100 text-green-700 px-4 py-2 rounded shadow"><?= htmlspecialchars($inquiry_msg) ?></p>
-    <?php endif; ?>
-</div>
+   <?php include 'owner_header.php'; ?>
 
 <!-- ========================== MAIN DASHBOARD ========================== -->
 <div class="flex flex-col items-center justify-center flex-1 py-6">
@@ -293,20 +199,7 @@ $conn->close();
     </div>
 
    <div class="flex space-x-6">
-    <!-- Manage Tourist Spots -->
-<a href="tourist_spot_owner_dashboard.php" class="flex flex-col items-center">
-        <div class="w-16 h-16 rounded-full bg-yellow-500 hover:bg-green-700 text-white text-2xl flex items-center justify-center shadow-lg transition">
-            <i class="fas fa-house"></i>
-        </div>
-        <span class="mt-2 text-white font-semibold">Home</span>
-    </a>
 
-    <a href="tourist_spot_manage.php" class="flex flex-col items-center">
-        <div class="w-16 h-16 rounded-full bg-green-700 hover:bg-blue-600 text-white text-2xl flex items-center justify-center shadow-lg transition">
-            <i class="fas fa-clipboard-list"></i>
-        </div>
-       <span class="mt-2 text-white font-semibold">Manage</span>
-    </a>
 
     <!-- Add Tourist Spot -->
     <button onclick="openModal('addSpotModal')" class="flex flex-col items-center">
@@ -316,8 +209,6 @@ $conn->close();
         <span class="mt-2 text-white font-semibold">Add</span>
     </button>
 </div>
-
-
 
 <!-- ========================== ADD TOURIST SPOT MODAL ========================== -->
 <div id="addSpotModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex justify-center items-start overflow-auto p-4 pt-12">
@@ -420,8 +311,6 @@ function toggleProfileDropdown() {
     dropdown.classList.toggle('hidden');
 }
 
-
 </script>
-
 </body>
 </html>
