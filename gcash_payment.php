@@ -67,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
 
     // ✅ Save payment
     if (empty($error)) {
+        // Generate unique reference number
         do {
             $reference_number = 'ref' . substr(bin2hex(random_bytes(3)), 0, 5);
             $check_stmt = $conn->prepare("SELECT id FROM pay_via_qr WHERE reference_number = ?");
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
         } while ($check_stmt->num_rows > 0);
         $check_stmt->close();
 
+        // ✅ Step 1: Insert into pay_via_qr table
         $stmt2 = $conn->prepare("INSERT INTO pay_via_qr 
             (tourist_id, fullname, address, email, phone, package_id, booking_date, pax, total, amount, status, payment_date, proof_image, reference_number, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW(), ?, ?, NOW())");
@@ -97,8 +99,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
         );
 
         if ($stmt2->execute()) {
+
+            // ✅ Step 2: Insert into booking table (automatically link booking)
+            $tourist_id = $_SESSION['user']['id'];
+            $status = 'pending';
+            $stmt3 = $conn->prepare("INSERT INTO bookings (package_id, tourists_id, booking_date, pax, status, created_at)
+                                     VALUES (?, ?, ?, ?, ?, NOW())");
+            $stmt3->bind_param("iisds", $package_id, $tourist_id, $booking_date, $pax, $status);
+            $stmt3->execute();
+            $stmt3->close();
+
             $success = true;
             $show_form = false;
+
         } else {
             if (!empty($screenshot_path) && file_exists($screenshot_path)) @unlink($screenshot_path);
             $error = "Failed to save payment. " . $stmt2->error;
@@ -107,6 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_payment']) &&
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

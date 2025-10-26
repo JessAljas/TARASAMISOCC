@@ -17,6 +17,9 @@
       <a href="add.php" class="flex items-center gap-1 px-3 py-2 rounded hover:bg-green-600">
         <i class="fas fa-plus"></i> ADD
       </a>
+       <a href="sched_visitors.php" class="flex items-center gap-1 px-3 py-2 rounded hover:bg-green-600">
+        <i class="fa-solid fa-calendar-check text-lg"></i>VISIT TIMELINE
+     </a>
       <a href="tourist_spot_manage.php" class="flex items-center gap-1 px-3 py-2 rounded hover:bg-green-600">
         <i class="fas fa-edit"></i> MANAGE
       </a>

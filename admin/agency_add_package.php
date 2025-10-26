@@ -4,7 +4,7 @@
 
     // Redirect if not logged in as admin/agency
     if (!isset($_SESSION['user']) || !in_array($_SESSION['user']['role'], ['admin', 'agency'])) {
-        header("Location: login.php");
+        header("Location: admin_login.php");
         exit;
     }
 
