@@ -44,7 +44,7 @@ foreach ($bookings_data as $row) {
     if ($row['booking_date'] >= $today && $row['booking_date'] <= $week_ahead) $upcoming_visits++;
 }
 
-// Monthly visitors (no join needed since tourist_spot_id is removed)
+// Monthly visitors
 $current_month = date('m');
 $current_year = date('Y');
 
@@ -63,7 +63,6 @@ $total_visitors_this_month = (int)($monthly_data['total_visitors'] ?? 0);
 // Reset result pointer for table usage
 mysqli_data_seek($result, 0);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -100,16 +99,33 @@ mysqli_data_seek($result, 0);
         </div>
 
         <!-- FILTER SECTION -->
-        <div class="bg-white p-6 shadow-md rounded-xl mb-10 w-full max-w-4xl flex flex-col sm:flex-row sm:items-end gap-4">
-            <div class="flex-1">
-                <label class="block text-sm font-medium text-gray-600">Select Date Range:</label>
-                <div class="flex gap-2 mt-2">
-                    <input type="date" id="startDate" class="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    <input type="date" id="endDate" class="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                </div>
-            </div>
-            <button onclick="filterTable()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition duration-200">🔍 Filter</button>
+<div class="bg-white p-6 shadow-md rounded-xl mb-10 w-full max-w-4xl flex flex-col sm:flex-row sm:items-end gap-4">
+    <div class="flex-1">
+        <label class="block text-sm font-medium text-gray-600">Select Date:</label>
+        <div class="flex gap-2 mt-2">
+            <input type="date" id="startDate" 
+                   class="border border-gray-300 rounded-lg px-3 py-2 w-60 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                   onchange="filterTable()">
         </div>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    const startDate = new Date(document.getElementById('startDate').value);
+    const rows = document.querySelectorAll('#scheduleTable tr');
+
+    rows.forEach(row => {
+        const dateText = row.cells[1]?.getAttribute('data-date');
+        if (!dateText) return;
+        const rowDate = new Date(dateText);
+
+        // Show only rows on or after selected date
+        row.style.display = (!isNaN(startDate) && rowDate < startDate) ? 'none' : '';
+    });
+}
+</script>
+
 
         <!-- TABLE SECTION -->
         <div class="w-full max-w-4xl bg-white shadow-lg rounded-xl overflow-hidden mb-6">
@@ -132,8 +148,11 @@ mysqli_data_seek($result, 0);
                                 'Approved' => 'text-yellow-600 font-semibold',
                                 default => 'text-gray-600',
                             };
+
+                            // Ensure proper date format for display and JS filtering
+                            $booking_date_raw = date('Y-m-d', strtotime($row['booking_date']));
                             $booking_date_formatted = date('F d, Y', strtotime($row['booking_date']));
-                            $booking_date_raw = $row['booking_date'];
+
                             echo "
                             <tr class='border-b hover:bg-gray-50 transition'>
                                 <td class='py-3 px-4 font-medium text-gray-600'>{$i}</td>
@@ -150,25 +169,5 @@ mysqli_data_seek($result, 0);
                 </tbody>
             </table>
         </div>
-
-    <script>
-        function filterTable() {
-            const startDate = new Date(document.getElementById('startDate').value);
-            const endDate = new Date(document.getElementById('endDate').value);
-            const rows = document.querySelectorAll('#scheduleTable tr');
-
-            rows.forEach(row => {
-                const dateText = row.cells[1]?.getAttribute('data-date');
-                if (!dateText) return;
-                const rowDate = new Date(dateText);
-                if ((!isNaN(startDate) && rowDate < startDate) || (!isNaN(endDate) && rowDate > endDate)) {
-                    row.style.display = 'none';
-                } else {
-                    row.style.display = '';
-                }
-            });
-        }
-    </script>
-
 </body>
 </html>

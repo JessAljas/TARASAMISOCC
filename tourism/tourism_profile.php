@@ -5,7 +5,7 @@ include 'tourism_header.php';
 
 // Only tourism officers are allowed
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourism_officers') {
-    header("Location: login.php");
+    header("Location: admin_login.php");
     exit;
 }
 

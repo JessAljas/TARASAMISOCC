@@ -4,7 +4,7 @@ include '../config/db_connect.php';
 
 // Only ang allow is tourism officers
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'tourism_officers') {
-    header("Location: login.php");
+    header("Location: admin_login.php");
     exit;
 }
 

@@ -83,14 +83,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_spot'])) {
     }
 
     // Update spot in DB
-    $stmt = $conn->prepare("UPDATE tourist_spots 
-        SET name_of_tourist_spot = ?, description = ?, location = ?, activity = ?, entrance_fee = ?, latitude = ?, longitude = ?, image1 = ?, image2 = ?, image3 = ?, status = 'modified' 
-        WHERE id = ? AND owner_id = ?");
-    $stmt->bind_param("ssssdddsssii", 
-        $name, $description, $location, $activity, $entrance_fee, $latitude, $longitude, 
-        $images[0], $images[1], $images[2], $spot_id, $user_id);
-    $stmt->execute();
-    $stmt->close();
+// Update spot in DB without changing status
+$stmt = $conn->prepare("UPDATE tourist_spots 
+    SET name_of_tourist_spot = ?, description = ?, location = ?, activity = ?, entrance_fee = ?, latitude = ?, longitude = ?, image1 = ?, image2 = ?, image3 = ?
+    WHERE id = ? AND owner_id = ?");
+$stmt->bind_param("ssssdddsssii", 
+    $name, $description, $location, $activity, $entrance_fee, $latitude, $longitude, 
+    $images[0], $images[1], $images[2], $spot_id, $user_id);
+$stmt->execute();
+$stmt->close();
 
     header("Location: " . $_SERVER['PHP_SELF'] . "?page=" . ($_GET['page'] ?? 1) . "&updated=1");
     exit;
@@ -179,7 +180,6 @@ $stmt->close();
                     $status_classes = [
                         'verified' => 'bg-green-100 text-green-700',
                         'pending' => 'bg-orange-100 text-orange-700',
-                        'modified' => 'bg-red-100 text-red-700'
                     ];
                     $class = $status_classes[$spot['status']] ?? 'bg-gray-100 text-gray-700';
                 ?>
